@@ -1,5 +1,7 @@
 /**
  * Classe pour gérer les appels de fonctions basés sur les réponses JSON.
+ * Cette classe permet d'enregistrer des fonctions et de les exécuter en fonction
+ * des réponses JSON reçues.
  */
 export class FunctionCallHandler {
   /**
@@ -38,6 +40,7 @@ export class FunctionCallHandler {
     
     // Si un gestionnaire de dictionnaire JSON est disponible, y enregistrer également la fonction
     if (this.jsonDictManager) {
+      // Ajouter la description et les paramètres pour l'API
       this.jsonDictManager.registerFunction(name, description, parameters);
     }
   }
@@ -49,6 +52,7 @@ export class FunctionCallHandler {
    * @returns {boolean} - True si la fonction existe, false sinon
    */
   hasFunction(name) {
+    // Vérifier si la fonction est présente dans le registre
     return this.functionRegistry.hasOwnProperty(name);
   }
 
@@ -77,9 +81,11 @@ export class FunctionCallHandler {
         }
       }
     } catch (error) {
+      // Gérer les erreurs de parsing ou d'exécution
       console.error('Erreur lors du traitement de la réponse JSON:', error);
     }
     
+    // Pas de fonction exécutée
     return null;
   }
 }

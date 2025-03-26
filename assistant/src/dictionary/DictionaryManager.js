@@ -1,14 +1,17 @@
 /**
- * Classe pour gérer le dictionnaire de mots autorisés.
+ * Gestionnaire de dictionnaire de mots.
+ * Cette classe gère la liste des mots autorisés pour l'application
+ * et génère le prompt système pour le modèle d'IA.
  */
 export class DictionaryManager {
   /**
    * Initialise le gestionnaire de dictionnaire.
    * 
-   * @param {string[]} words - Liste des mots autorisés
+   * @param {Array<string>} allowedWords - Liste des mots autorisés
    */
-  constructor(words) {
-    this.words = words;
+  constructor(allowedWords = []) {
+    // Liste des mots autorisés pour l'application
+    this.allowedWords = allowedWords;
   }
 
   /**
@@ -17,7 +20,8 @@ export class DictionaryManager {
    * @returns {string} - Le prompt système
    */
   getSystemPrompt() {
-    const wordsStr = this.words.join(", ");
+    // Construire le prompt avec les instructions et la liste des mots
+    const wordsStr = this.allowedWords.join(", ");
     
     const prompt = `Tu dois répondre STRICTEMENT en utilisant UNIQUEMENT les mots du dictionnaire suivant:
 ${wordsStr}
@@ -38,18 +42,19 @@ Exemple de réponse correcte: "Arbre Forêt Vent Feuille"`;
   /**
    * Récupère la liste des mots du dictionnaire.
    * 
-   * @returns {string[]} - Liste des mots du dictionnaire
+   * @returns {Array<string>} - Liste des mots du dictionnaire
    */
   getWords() {
-    return this.words;
+    return [...this.allowedWords]; // Retourne une copie de la liste
   }
 
   /**
    * Formate la liste des mots pour l'affichage.
+   * Les mots sont séparés par des virgules.
    * 
    * @returns {string} - Chaîne formatée des mots du dictionnaire
    */
   getFormattedWordList() {
-    return this.words.join(", ");
+    return this.allowedWords.join(", ");
   }
 }
