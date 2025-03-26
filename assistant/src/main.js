@@ -1,10 +1,10 @@
-import './style.css';
-import { DictionaryManager } from './DictionaryManager.js';
-import { JsonDictionaryManager } from './JsonDictionaryManager.js';
-import { LMStudioClient } from './LMStudioClient.js';
-import { ChatInterface } from './ChatInterface.js';
-import { FunctionCallHandler } from './FunctionCallHandler.js';
-import { FunctionRegistry } from './FunctionRegistry.js';
+import './styles/style.css';
+import { DictionaryManager } from './dictionary/DictionaryManager.js';
+import { JsonDictionaryManager } from './dictionary/JsonDictionaryManager.js';
+import { LMStudioClient } from './api/LMStudioClient.js';
+import { ChatInterface } from './ui/ChatInterface.js';
+import { FunctionCallHandler } from './functions/FunctionCallHandler.js';
+import { FunctionRegistry } from './functions/FunctionRegistry.js';
 
 // Initialisation de l'application
 document.addEventListener('DOMContentLoaded', () => {
