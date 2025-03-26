@@ -12,6 +12,8 @@
       <div class="container">
         <h1>Chat avec Dictionnaire Limité</h1>
         
+        <div class="mode-selector"></div>
+        
         <div class="dictionary-section">
           <h2>Dictionnaire disponible:</h2>
           <div id="dictionary-display" class="dictionary-display"></div>
@@ -25,6 +27,15 @@
         <div class="input-section">
           <input type="text" id="message-input" placeholder="Écrivez votre message ici..." />
           <button id="send-button">Envoyer</button>
+        </div>
+        
+        <div class="terminal-section">
+          <div id="function-results" class="terminal-content">
+            <div class="terminal-line">
+              <span class="terminal-prompt">$</span>
+              <span class="terminal-text empty-state">Aucun résultat de fonction à afficher</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

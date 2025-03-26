@@ -109,6 +109,9 @@ h2 {
 .input-section {
   display: flex;
   gap: 0.5rem;
+  margin-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 #message-input {
@@ -165,7 +168,7 @@ h2 {
 }
 
 /* Loading indicator */
-.loading {
+.loading-animation {
   display: inline-block;
   width: 20px;
   height: 20px;
@@ -174,31 +177,12 @@ h2 {
   border-top-color: var(--primary-color);
   animation: spin 1s ease-in-out infinite;
   margin-left: 10px;
+  vertical-align: middle;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* JSON note and pre-formatted JSON display */
-.json-note {
-  font-size: 0.7rem;
-  color: var(--dark-gray);
-  font-style: italic;
-  margin-top: 0.3rem;
-}
-
-pre {
-  background-color: rgba(0, 0, 0, 0.05);
-  padding: 0.5rem;
-  border-radius: 4px;
-  overflow-x: auto;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-}
-
-/* Markdown styling */
 .message-content {
+  display: flex;
+  align-items: center;
   line-height: 1.5;
 }
 
@@ -272,7 +256,105 @@ pre {
   height: auto;
 }
 
-/* Responsive design */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* JSON note and pre-formatted JSON display */
+.json-note {
+  font-size: 0.7rem;
+  color: var(--dark-gray);
+  font-style: italic;
+  margin-top: 0.3rem;
+}
+
+pre {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.5rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* Terminal styling */
+.terminal-section {
+  margin-top: 0.5rem;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+  background-color: #1e1e1e;
+  font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+  border: 1px solid #333;
+}
+
+.terminal-content {
+  padding: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  color: #e4e4e4;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.terminal-line {
+  margin-bottom: 8px;
+  display: flex;
+}
+
+.terminal-line:last-child {
+  margin-bottom: 0;
+}
+
+.terminal-prompt {
+  color: #a0a0a0;
+  margin-right: 8px;
+  font-weight: normal;
+}
+
+.terminal-text {
+  flex-grow: 1;
+  word-break: break-word;
+}
+
+.terminal-text.empty-state {
+  color: #7a7a7a;
+  font-style: italic;
+}
+
+.terminal-command {
+  font-weight: normal;
+}
+
+.terminal-result {
+  white-space: pre-wrap;
+  background-color: #252525;
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  border: none;
+}
+
+.terminal-success {
+  font-weight: normal;
+}
+
+.terminal-error {
+  font-weight: normal;
+}
+
+/* Remove old function panel styling */
+.main-content {
+  display: block;
+}
+
+.function-panel {
+  display: none;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .container {
     margin: 1rem;

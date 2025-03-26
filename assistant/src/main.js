@@ -3,6 +3,8 @@ import { DictionaryManager } from './DictionaryManager.js';
 import { JsonDictionaryManager } from './JsonDictionaryManager.js';
 import { LMStudioClient } from './LMStudioClient.js';
 import { ChatInterface } from './ChatInterface.js';
+import { FunctionCallHandler } from './FunctionCallHandler.js';
+import { FunctionRegistry } from './FunctionRegistry.js';
 
 // Initialisation de l'application
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,17 +26,39 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialisation des composants
   const lmClient = new LMStudioClient(lmUrl, modelName);
+  
+  // Création des gestionnaires en fonction du mode
   const dictManager = useJsonMode 
     ? new JsonDictionaryManager(dictionary)
     : new DictionaryManager(dictionary);
-  const chatInterface = new ChatInterface(lmClient, dictManager);
+  
+  // Initialisation du gestionnaire de fonctions avec référence au JsonDictionaryManager
+  const functionHandler = new FunctionCallHandler(useJsonMode ? dictManager : null);
+  
+  // Enregistrement des fonctions via le registre de fonctions
+  const functionRegistry = new FunctionRegistry(functionHandler);
+  
+  // Initialiser le terminal dans le registre de fonctions
+  functionRegistry.initializeTerminal();
+  
+  // Enregistrer toutes les fonctions
+  functionRegistry.registerAllFunctions();
+  
+  // Création de l'interface de chat avec le gestionnaire de fonctions
+  const chatInterface = new ChatInterface(lmClient, dictManager, functionHandler);
   
   // Démarrage de l'interface
   chatInterface.initialize();
   
   // Ajout d'un sélecteur de mode dans l'interface
-  const modeSelector = document.createElement('div');
-  modeSelector.classList.add('mode-selector');
+  let modeSelector = document.querySelector('.mode-selector');
+  if (!modeSelector) {
+    modeSelector = document.createElement('div');
+    modeSelector.classList.add('mode-selector');
+    const container = document.querySelector('.container');
+    const title = document.querySelector('h1');
+    container.insertBefore(modeSelector, title.nextSibling);
+  }
   modeSelector.innerHTML = `
     <label>
       <input type="checkbox" id="json-mode-toggle" ${useJsonMode ? 'checked' : ''}>
@@ -42,15 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
     </label>
   `;
   
-  // Insérer le sélecteur après le titre principal
-  const container = document.querySelector('.container');
-  const title = document.querySelector('h1');
-  container.insertBefore(modeSelector, title.nextSibling);
-  
   // Gestionnaire d'événement pour le changement de mode
-  document.getElementById('json-mode-toggle').addEventListener('change', (event) => {
+  const modeToggle = document.getElementById('json-mode-toggle');
+  modeToggle.addEventListener('change', () => {
+    const newMode = modeToggle.checked;
+    localStorage.setItem('useJsonMode', newMode);
     // Recharger la page pour appliquer le changement
-    localStorage.setItem('useJsonMode', event.target.checked);
     window.location.reload();
   });
 });
