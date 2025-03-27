@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedMode = localStorage.getItem('useJsonMode');
   const useJsonMode = savedMode !== null ? savedMode === 'true' : false;
   
+  // Appliquer le thème par défaut (clair)
+  document.body.classList.add('theme-light');
+  
   // Liste des mots autorisés pour le dictionnaire
   const dictionary = [
     "Arbre", "Fleur", "Eau", "Soleil", "Vent", "Terre", "Montagne", "Rivière", 
@@ -62,30 +65,16 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // ===== AJOUT DU SÉLECTEUR DE MODE =====
   
-  // Créer ou récupérer le sélecteur de mode (JSON ou standard)
-  let modeSelector = document.querySelector('.mode-selector');
-  
-  // Si le sélecteur n'existe pas encore, le créer
-  if (!modeSelector) {
-    // Créer l'élément
-    modeSelector = document.createElement('div');
-    modeSelector.classList.add('mode-selector');
-    
-    // Trouver l'emplacement où l'insérer (après le titre)
-    const container = document.querySelector('.container');
-    const title = document.querySelector('h1');
-    container.insertBefore(modeSelector, title.nextSibling);
-  }
+  // Récupérer le conteneur du sélecteur de mode
+  const modeSelector = document.querySelector('.mode-selector');
   
   // Définir le contenu HTML du sélecteur
   modeSelector.innerHTML = `
     <label>
       <input type="checkbox" id="json-mode-toggle" ${useJsonMode ? 'checked' : ''}>
-      Mode JSON
+      <span>Mode JSON</span>
     </label>
   `;
-  
-  // ===== GESTION DU CHANGEMENT DE MODE =====
   
   // Récupérer la case à cocher du mode JSON
   const modeToggle = document.getElementById('json-mode-toggle');
@@ -100,5 +89,61 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Recharger la page pour appliquer le changement
     window.location.reload();
+  });
+  
+  // ===== AJOUT DU SÉLECTEUR DE THÈME =====
+  
+  // Récupérer le conteneur du sélecteur de thème
+  const themeSelector = document.querySelector('.theme-selector');
+  
+  // Définir les thèmes disponibles
+  const themes = [
+    { id: 'theme-light', name: 'Clair' },
+    { id: 'theme-dark', name: 'Sombre' },
+    { id: 'theme-blue', name: 'Bleu' },
+    { id: 'theme-green', name: 'Vert' }
+  ];
+  
+  // Récupérer le thème sauvegardé ou utiliser le thème par défaut
+  const savedTheme = localStorage.getItem('theme') || 'theme-light';
+  
+  // Appliquer le thème sauvegardé
+  document.body.className = '';
+  document.body.classList.add(savedTheme);
+  
+  // Créer les boutons pour chaque thème
+  themeSelector.innerHTML = `
+    <div class="theme-buttons">
+      ${themes.map(theme => `
+        <button class="theme-button ${theme.id === savedTheme ? 'active' : ''}" 
+                data-theme="${theme.id}">
+          ${theme.name}
+        </button>
+      `).join('')}
+    </div>
+  `;
+  
+  // Ajouter les écouteurs d'événements pour les boutons de thème
+  const themeButtons = document.querySelectorAll('.theme-button');
+  themeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // Récupérer le thème sélectionné
+      const selectedTheme = button.getAttribute('data-theme');
+      
+      // Supprimer la classe active de tous les boutons
+      themeButtons.forEach(btn => btn.classList.remove('active'));
+      
+      // Ajouter la classe active au bouton sélectionné
+      button.classList.add('active');
+      
+      // Supprimer tous les thèmes du body
+      document.body.className = '';
+      
+      // Appliquer le nouveau thème
+      document.body.classList.add(selectedTheme);
+      
+      // Sauvegarder le choix dans le stockage local
+      localStorage.setItem('theme', selectedTheme);
+    });
   });
 });

@@ -110,33 +110,55 @@ export class FunctionRegistry {
         handler: (args) => {
           // Cette fonction change le thème de l'application
           // en fonction du paramètre theme.
-          const theme = args.theme || "clair";
-          const themes = ["clair", "sombre", "bleu", "vert"];
+          const theme = args.theme || "theme-light";
+          const themes = ["theme-light", "theme-dark", "theme-blue", "theme-green"];
+          
+          // Map des anciens noms de thèmes vers les nouveaux
+          const themeMap = {
+            "clair": "theme-light",
+            "sombre": "theme-dark",
+            "bleu": "theme-blue",
+            "vert": "theme-green"
+          };
+          
+          // Si un ancien nom de thème est utilisé, le convertir
+          let themeToApply = theme;
+          if (themeMap[theme]) {
+            themeToApply = themeMap[theme];
+          }
 
           // Vérifier si le thème est valide
-          if (!themes.includes(theme)) {
+          if (!themes.includes(themeToApply)) {
             const result = {
               success: false,
-              message: `Thème invalide: ${theme}. Thèmes disponibles: ${themes.join(
-                ", "
-              )}`,
+              message: `Thème invalide: ${theme}. Thèmes disponibles: clair, sombre, bleu, vert`,
             };
             this.showInTerminal("changer_theme", args, result);
             return result;
           }
 
-          // Supprimer les classes de thème existantes
-          document.body.classList.remove(...themes.map((t) => `theme-${t}`));
-
-          // Ajouter la nouvelle classe de thème
-          document.body.classList.add(`theme-${theme}`);
+          // Supprimer tous les thèmes du body
+          document.body.className = '';
+          
+          // Appliquer le nouveau thème
+          document.body.classList.add(themeToApply);
+          
+          // Sauvegarder le choix dans le stockage local
+          localStorage.setItem('theme', themeToApply);
+          
+          // Mettre à jour l'état actif des boutons de thème
+          const themeButtons = document.querySelectorAll('.theme-button');
+          themeButtons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-theme') === themeToApply) {
+              btn.classList.add('active');
+            }
+          });
 
           const result = {
             success: true,
             message: `Thème changé pour: ${theme}`,
           };
-
-          // Afficher le résultat dans le terminal
           this.showInTerminal("changer_theme", args, result);
           return result;
         },
