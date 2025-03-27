@@ -119,12 +119,28 @@ export class ChatInterface {
           this.functionHandler.processResponse(jsonResponse);
         }
 
-        // Afficher le JSON formaté
-        contentElement.innerHTML = `<pre>${JSON.stringify(
-          jsonResponse,
-          null,
-          2
-        )}</pre>`;
+        // Afficher uniquement les valeurs des arguments, sans le nom de fonction ni les clés
+        if (jsonResponse.name && jsonResponse.arguments) {
+          // C'est un appel de fonction
+          const args = jsonResponse.arguments;
+          
+          // Créer une représentation textuelle simple des arguments (juste les valeurs)
+          let argsText = '';
+          if (Object.keys(args).length > 0) {
+            argsText = Object.values(args).join(' ');
+          } else {
+            argsText = '<em>Aucun argument</em>';
+          }
+          
+          contentElement.innerHTML = `<div class="function-result">${argsText}</div>`;
+        } else {
+          // Fallback pour les autres types de JSON
+          contentElement.innerHTML = `<pre>${JSON.stringify(
+            jsonResponse,
+            null,
+            2
+          )}</pre>`;
+        }
       } catch (e) {
         // Si ce n'est pas du JSON valide, afficher comme texte normal avec markdown
         contentElement.innerHTML = this.md.render(message);

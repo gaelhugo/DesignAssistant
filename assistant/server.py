@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import subprocess
 import os
+import urllib.parse
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes to allow requests from the web app
@@ -123,6 +124,40 @@ def play_track():
             "message": f"An unexpected error occurred: {str(e)}"
         }), 500
 
+@app.route('/api/open-youtube', methods=['GET'])
+def open_youtube():
+    """Endpoint to open YouTube in Brave browser and play a specific video."""
+    video_query = request.args.get('query', '')
+    
+    if not video_query:
+        return jsonify({
+            "success": False,
+            "message": "No video query provided. Use ?query=<video_query> in the URL."
+        }), 400
+    
+    try:
+        # URL encode the query for safe inclusion in a URL
+        encoded_query = urllib.parse.quote(video_query)
+        youtube_url = f"https://www.youtube.com/results?search_query={encoded_query}"
+        
+        # Use the 'open' command on macOS to open the URL in Brave
+        subprocess.run(['open', '-a', 'Brave Browser', youtube_url], check=True)
+        
+        return jsonify({
+            "success": True,
+            "message": f"Opened YouTube in Brave and searched for '{video_query}'"
+        })
+    except subprocess.CalledProcessError as e:
+        return jsonify({
+            "success": False,
+            "message": f"Failed to open YouTube in Brave: {str(e)}"
+        }), 500
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"An unexpected error occurred: {str(e)}"
+        }), 500
+
 if __name__ == '__main__':
-    # Run the Flask app on port 5000
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Run the Flask app on port 5001
+    app.run(host='0.0.0.0', port=5001, debug=True)
