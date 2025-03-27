@@ -278,24 +278,12 @@ export class FunctionRegistry {
             .then((response) => response.json())
             .then((data) => {
               if (data.success) {
-                // Ajouter un message de succès au terminal
-                // this.terminal.addLine({
-                //   type: "success",
-                //   content: `YouTube ouvert dans Brave avec la recherche : "${query}"`,
-                // });
-
                 this.showInTerminal(
                   "YouTube ouvert dans Brave avec la recherche",
                   args,
                   query
                 );
               } else {
-                // Ajouter un message d'erreur au terminal
-                // this.terminal.addLine({
-                //   type: "error",
-                //   content: `Erreur lors de l'ouverture de YouTube : ${data.message}`,
-                // });
-
                 this.showInTerminal(
                   "Erreur lors de l'ouverture de YouTube",
                   args,
@@ -304,12 +292,6 @@ export class FunctionRegistry {
               }
             })
             .catch((error) => {
-              // Ajouter un message d'erreur au terminal en cas d'échec de la requête
-              // this.terminal.addLine({
-              //   type: "error",
-              //   content: `Erreur de connexion au serveur : ${error.message}`,
-              // });
-
               this.showInTerminal(
                 "Erreur de connexion au serveur ",
                 args,
