@@ -111,16 +111,21 @@ export class FunctionRegistry {
           // Cette fonction change le thème de l'application
           // en fonction du paramètre theme.
           const theme = args.theme || "theme-light";
-          const themes = ["theme-light", "theme-dark", "theme-blue", "theme-green"];
-          
+          const themes = [
+            "theme-light",
+            "theme-dark",
+            "theme-blue",
+            "theme-green",
+          ];
+
           // Map des anciens noms de thèmes vers les nouveaux
           const themeMap = {
-            "clair": "theme-light",
-            "sombre": "theme-dark",
-            "bleu": "theme-blue",
-            "vert": "theme-green"
+            clair: "theme-light",
+            sombre: "theme-dark",
+            bleu: "theme-blue",
+            vert: "theme-green",
           };
-          
+
           // Si un ancien nom de thème est utilisé, le convertir
           let themeToApply = theme;
           if (themeMap[theme]) {
@@ -138,20 +143,20 @@ export class FunctionRegistry {
           }
 
           // Supprimer tous les thèmes du body
-          document.body.className = '';
-          
+          document.body.className = "";
+
           // Appliquer le nouveau thème
           document.body.classList.add(themeToApply);
-          
+
           // Sauvegarder le choix dans le stockage local
-          localStorage.setItem('theme', themeToApply);
-          
+          localStorage.setItem("theme", themeToApply);
+
           // Mettre à jour l'état actif des boutons de thème
-          const themeButtons = document.querySelectorAll('.theme-button');
-          themeButtons.forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.getAttribute('data-theme') === themeToApply) {
-              btn.classList.add('active');
+          const themeButtons = document.querySelectorAll(".theme-button");
+          themeButtons.forEach((btn) => {
+            btn.classList.remove("active");
+            if (btn.getAttribute("data-theme") === themeToApply) {
+              btn.classList.add("active");
             }
           });
 
@@ -167,6 +172,85 @@ export class FunctionRegistry {
           theme: {
             type: "string",
             description: "Le thème à appliquer (clair, sombre, bleu, vert)",
+          },
+        },
+      },
+
+      ouvrir_itunes: {
+        handler: (args) => {
+          // Cette fonction appelle le serveur Flask pour ouvrir iTunes
+          const result = {
+            pending: true,
+            message: "Ouverture d'iTunes en cours...",
+          };
+          this.showInTerminal("ouvrir_itunes", args, result);
+
+          // Appel au serveur Flask
+          fetch("http://localhost:5000/api/open-itunes")
+            .then((response) => response.json())
+            .then((data) => {
+              const finalResult = {
+                success: data.success,
+                message: data.message,
+              };
+              this.showInTerminal("ouvrir_itunes", args, finalResult);
+              return finalResult;
+            })
+            .catch((error) => {
+              const errorResult = {
+                success: false,
+                message: `Erreur lors de l'ouverture d'iTunes: ${error.message}`,
+              };
+              this.showInTerminal("ouvrir_itunes", args, errorResult);
+              return errorResult;
+            });
+
+          return result;
+        },
+        description: "Ouvre l'application iTunes sur votre Mac",
+        parameters: {},
+      },
+
+      jouer_morceau: {
+        handler: (args) => {
+          // Cette fonction appelle le serveur Flask pour jouer un morceau dans iTunes
+          const result = {
+            pending: true,
+            message: "Chargement du morceau en cours...",
+          };
+          this.showInTerminal("jouer_morceau", args, result);
+
+          // Appel au serveur Flask
+          fetch(
+            "http://localhost:5000/api/play-track?track=" +
+              encodeURIComponent(args.track)
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              const finalResult = {
+                success: data.success,
+                message: data.message,
+              };
+              this.showInTerminal("jouer_morceau", args, finalResult);
+              return finalResult;
+            })
+            .catch((error) => {
+              const errorResult = {
+                success: false,
+                message: `Erreur lors du chargement du morceau: ${error.message}`,
+              };
+              this.showInTerminal("jouer_morceau", args, errorResult);
+              return errorResult;
+            });
+
+          return result;
+        },
+        description: "Joue un morceau dans l'application iTunes sur votre Mac",
+        parameters: {
+          track: {
+            type: "string",
+            description:
+              "Le nom du morceau à jouer. Actuellement uniquement disponible ces morceaux : 'Winter Sleep (Original Mix)' ou 'Party People' ou le nom de la track demandée expressément par l'utilisateur",
           },
         },
       },
