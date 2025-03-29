@@ -3,8 +3,6 @@
  * Cette classe définit toutes les fonctions disponibles pour le modèle d'IA
  * et gère leur affichage dans le terminal.
  */
-import { TerminalInterface } from "../ui/TerminalInterface.js";
-
 export class FunctionRegistry {
   /**
    * Constructeur du registre de fonctions.
@@ -31,7 +29,7 @@ export class FunctionRegistry {
           };
 
           // Afficher le résultat dans le terminal
-          this.showInTerminal("reponse_dictionnaire", args, result);
+          this.terminal.showInTerminal("reponse_dictionnaire", args, result);
           return result;
         },
         description:
@@ -69,7 +67,7 @@ export class FunctionRegistry {
           };
 
           // Afficher le résultat dans le terminal
-          this.showInTerminal("compter_mots", args, result);
+          this.terminal.showInTerminal("compter_mots", args, result);
           return result;
         },
         description: "Compte le nombre de mots dans un texte",
@@ -96,7 +94,7 @@ export class FunctionRegistry {
           };
 
           // Afficher le résultat dans le terminal
-          this.showInTerminal("alerte", args, result);
+          this.terminal.showInTerminal("alerte", args, result);
           return result;
         },
         description: "Affiche une alerte à l'utilisateur",
@@ -168,7 +166,7 @@ export class FunctionRegistry {
             pending: true,
             message: "Ouverture d'iTunes en cours...",
           };
-          this.showInTerminal("ouvrir_itunes", args, result);
+          this.terminal.showInTerminal("ouvrir_itunes", args, result);
 
           // Appel au serveur Flask
           fetch("http://localhost:5000/api/open-itunes")
@@ -178,7 +176,7 @@ export class FunctionRegistry {
                 success: data.success,
                 message: data.message,
               };
-              this.showInTerminal("ouvrir_itunes", args, finalResult);
+              this.terminal.showInTerminal("ouvrir_itunes", args, finalResult);
               return finalResult;
             })
             .catch((error) => {
@@ -186,7 +184,7 @@ export class FunctionRegistry {
                 success: false,
                 message: `Erreur lors de l'ouverture d'iTunes: ${error.message}`,
               };
-              this.showInTerminal("ouvrir_itunes", args, errorResult);
+              this.terminal.showInTerminal("ouvrir_itunes", args, errorResult);
               return errorResult;
             });
 
@@ -203,7 +201,7 @@ export class FunctionRegistry {
             pending: true,
             message: "Chargement du morceau en cours...",
           };
-          this.showInTerminal("jouer_morceau", args, result);
+          this.terminal.showInTerminal("jouer_morceau", args, result);
 
           // Appel au serveur Flask
           fetch(
@@ -216,7 +214,7 @@ export class FunctionRegistry {
                 success: data.success,
                 message: data.message,
               };
-              this.showInTerminal("jouer_morceau", args, finalResult);
+              this.terminal.showInTerminal("jouer_morceau", args, finalResult);
               return finalResult;
             })
             .catch((error) => {
@@ -224,7 +222,7 @@ export class FunctionRegistry {
                 success: false,
                 message: `Erreur lors du chargement du morceau: ${error.message}`,
               };
-              this.showInTerminal("jouer_morceau", args, errorResult);
+              this.terminal.showInTerminal("jouer_morceau", args, errorResult);
               return errorResult;
             });
 
@@ -263,13 +261,13 @@ export class FunctionRegistry {
             .then((response) => response.json())
             .then((data) => {
               if (data.success) {
-                this.showInTerminal(
+                this.terminal.showInTerminal(
                   "YouTube ouvert dans Brave avec la recherche",
                   args,
                   query
                 );
               } else {
-                this.showInTerminal(
+                this.terminal.showInTerminal(
                   "Erreur lors de l'ouverture de YouTube",
                   args,
                   data.message
@@ -277,7 +275,7 @@ export class FunctionRegistry {
               }
             })
             .catch((error) => {
-              this.showInTerminal(
+              this.terminal.showInTerminal(
                 "Erreur de connexion au serveur ",
                 args,
                 error.message
@@ -311,51 +309,5 @@ export class FunctionRegistry {
         funcConfig.parameters
       );
     });
-  }
-
-  /**
-   * Affiche les résultats d'une fonction dans le terminal.
-   *
-   * @param {string} functionName - Le nom de la fonction
-   * @param {Object} args - Les arguments de la fonction
-   * @param {Object} result - Le résultat de la fonction
-   */
-  showInTerminal(functionName, args, result) {
-    if (!this.terminal) return;
-
-    // Formater les arguments pour un meilleur affichage
-    let processedArgs = {};
-    for (const key in args) {
-      if (typeof args[key] === "string" && args[key].includes(",")) {
-        // Ajouter des espaces après les virgules dans les chaînes de caractères
-        processedArgs[key] = args[key]
-          .replace(/,/g, ", ")
-          .replace(/\s+/g, " ")
-          .trim();
-      } else {
-        processedArgs[key] = args[key];
-      }
-    }
-
-    const timestamp = new Date().toLocaleTimeString();
-    const argsStr = JSON.stringify(processedArgs, null, 2);
-    const resultStr = JSON.stringify(result, null, 2);
-
-    const content = `
-      <div class="terminal-line">
-        <span style="color: #75b5aa">[${timestamp}]</span>
-        <span style="color: #f8c555">Fonction: ${functionName}</span>
-        <div style="margin-left: 15px; margin-top: 5px;">
-          <span style="color: #7ec699">Arguments:</span>
-          <pre style="color: #dcdcdc; margin: 5px 0;">${argsStr}</pre>
-          <span style="color: ${
-            result.success !== false ? "#7ec699" : "#e06c75"
-          }">Résultat:</span>
-          <pre style="color: #dcdcdc; margin: 5px 0;">${resultStr}</pre>
-        </div>
-      </div>
-    `;
-
-    this.terminal.append(content);
   }
 }

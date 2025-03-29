@@ -2,6 +2,8 @@
  * Gestionnaire de la fonctionnalité de minimisation du chat.
  * Permet de basculer entre le mode normal et le mode minimisé.
  */
+import { CanvasManager } from '../canvas/CanvasManager.js';
+
 export class MinifyManager {
   /**
    * Initialise le gestionnaire de minimisation.
@@ -13,8 +15,8 @@ export class MinifyManager {
     this.isMinified = false;
     this.minifyButton = null;
     this.expandButton = null;
-    this.canvas = null;
     this.minifiedChat = null;
+    this.canvasManager = new CanvasManager();
   }
 
   /**
@@ -27,37 +29,18 @@ export class MinifyManager {
     // Créer le conteneur pour le chat minimisé (caché par défaut)
     this.createMinifiedChat();
     
-    // Créer le canvas plein écran (caché par défaut)
-    this.createCanvas();
-    
     // Ajouter les écouteurs d'événements
     this.addEventListeners();
-  }
-
-  /**
-   * Crée le bouton de minimisation et l'ajoute à l'interface.
-   * Note: Cette méthode n'est plus utilisée car le bouton est maintenant dans le HTML.
-   */
-  createMinifyButton() {
-    // Méthode conservée pour référence, mais non utilisée
-    this.minifyButton = document.createElement('button');
-    this.minifyButton.classList.add('minify-button');
-    this.minifyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
-    this.minifyButton.title = 'Minimiser le chat';
     
-    // Ajouter le bouton à l'en-tête du chat
-    const chatHeader = document.querySelector('.chat-header');
-    if (chatHeader) {
-      chatHeader.appendChild(this.minifyButton);
-    } else {
-      console.error('Chat header not found');
-    }
+    // Initialiser complètement après le chargement du DOM
+    this.completeInitialization();
   }
 
   /**
    * Crée le conteneur pour le chat minimisé.
    */
   createMinifiedChat() {
+    // Créer le conteneur principal
     this.minifiedChat = document.createElement('div');
     this.minifiedChat.classList.add('minified-chat', 'hidden');
     
@@ -116,49 +99,6 @@ export class MinifyManager {
   }
 
   /**
-   * Crée le canvas plein écran.
-   */
-  createCanvas() {
-    this.canvas = document.createElement('canvas');
-    this.canvas.classList.add('fullscreen-canvas', 'hidden');
-    this.canvas.id = 'fullscreen-canvas';
-    
-    // Ajouter à la page
-    document.body.appendChild(this.canvas);
-    
-    // Configurer le canvas pour qu'il soit toujours à la bonne taille
-    this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
-  }
-
-  /**
-   * Redimensionne le canvas pour qu'il occupe tout l'écran.
-   */
-  resizeCanvas() {
-    if (this.canvas) {
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
-      
-      // Obtenir le thème actuel
-      const body = document.body;
-      let bgColor = '#f7f7f8'; // Couleur par défaut (light theme)
-      
-      if (body.classList.contains('dark-theme')) {
-        bgColor = '#343541';
-      } else if (body.classList.contains('blue-theme')) {
-        bgColor = '#f0f9ff';
-      } else if (body.classList.contains('green-theme')) {
-        bgColor = '#ecfdf5';
-      }
-      
-      // Dessiner le fond selon le thème actuel
-      const ctx = this.canvas.getContext('2d');
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    }
-  }
-
-  /**
    * Ajoute les écouteurs d'événements pour les boutons.
    */
   addEventListeners() {
@@ -186,15 +126,6 @@ export class MinifyManager {
     // Écouteur pour le bouton d'envoi minifié
     const minifiedSendButton = document.getElementById('minified-send-button');
     minifiedSendButton.addEventListener('click', () => this.sendMessageFromMinified());
-    
-    // Écouteur pour les changements de thème
-    const themeButtons = document.querySelectorAll('.theme-button');
-    themeButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        // Redessiner le canvas avec la nouvelle couleur de thème
-        setTimeout(() => this.resizeCanvas(), 100);
-      });
-    });
     
     // Copier le SVG du bouton principal vers le bouton minifié
     setTimeout(() => {
@@ -245,9 +176,8 @@ export class MinifyManager {
     const isTerminalVisible = terminalContainer && !terminalContainer.classList.contains('hidden');
     
     // Afficher le canvas plein écran (sauf si le terminal est visible)
-    if (this.canvas && !isTerminalVisible) {
-      this.canvas.classList.remove('hidden');
-      this.resizeCanvas();
+    if (!isTerminalVisible) {
+      this.canvasManager.show();
     }
     
     // Afficher le chat minimisé
@@ -276,9 +206,7 @@ export class MinifyManager {
     }
     
     // Cacher le canvas plein écran
-    if (this.canvas) {
-      this.canvas.classList.add('hidden');
-    }
+    this.canvasManager.hide();
     
     // Cacher le chat minimisé
     if (this.minifiedChat) {

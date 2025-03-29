@@ -15,7 +15,8 @@ import { ThemeSelector } from "./ui/ThemeSelector.js";
 import { ModeSelector } from "./ui/ModeSelector.js";
 
 // Attendre que le DOM soit complètement chargé avant d'initialiser l'application
-document.addEventListener("DOMContentLoaded", () => {
+// document.addEventListener("DOMContentLoaded", () => {
+function start() {
   // ===== CONFIGURATION DE BASE =====
 
   // Vérifier si le mode JSON est activé (sauvegardé dans le stockage local)
@@ -113,4 +114,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // 6. Initialiser le gestionnaire de minimisation
   const minifyManager = new MinifyManager(chatInterface);
   minifyManager.initialize();
+  // });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  start();
 });

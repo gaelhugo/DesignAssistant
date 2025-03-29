@@ -196,6 +196,59 @@ export class TerminalInterface {
   }
 
   /**
+   * Affiche les résultats d'une fonction dans le terminal avec un formatage amélioré.
+   *
+   * @param {string} functionName - Le nom de la fonction
+   * @param {Object} args - Les arguments de la fonction
+   * @param {Object} result - Le résultat de la fonction
+   */
+  showInTerminal(functionName, args, result) {
+    // Supprimer le message "Aucun résultat" si présent
+    const emptyState = this.terminalElement.querySelector(".empty-state");
+    if (emptyState) {
+      const emptyLine = emptyState.closest(".terminal-line");
+      if (emptyLine) {
+        this.terminalElement.removeChild(emptyLine);
+      }
+    }
+    
+    // Formater les arguments pour un meilleur affichage
+    let processedArgs = {};
+    for (const key in args) {
+      if (typeof args[key] === "string" && args[key].includes(",")) {
+        // Ajouter des espaces après les virgules dans les chaînes de caractères
+        processedArgs[key] = args[key]
+          .replace(/,/g, ", ")
+          .replace(/\s+/g, " ")
+          .trim();
+      } else {
+        processedArgs[key] = args[key];
+      }
+    }
+
+    const timestamp = new Date().toLocaleTimeString();
+    const argsStr = JSON.stringify(processedArgs, null, 2);
+    const resultStr = JSON.stringify(result, null, 2);
+
+    const content = `
+      <div class="terminal-line">
+        <span style="color: #75b5aa">[${timestamp}]</span>
+        <span style="color: #f8c555">Fonction: ${functionName}</span>
+        <div style="margin-left: 15px; margin-top: 5px;">
+          <span style="color: #7ec699">Arguments:</span>
+          <pre style="color: #dcdcdc; margin: 5px 0;">${argsStr}</pre>
+          <span style="color: ${
+            result.success !== false ? "#7ec699" : "#e06c75"
+          }">Résultat:</span>
+          <pre style="color: #dcdcdc; margin: 5px 0;">${resultStr}</pre>
+        </div>
+      </div>
+    `;
+
+    this.append(content);
+  }
+
+  /**
    * Efface tout le contenu du terminal et réinitialise l'état vide.
    * Utile pour réinitialiser l'interface.
    */
