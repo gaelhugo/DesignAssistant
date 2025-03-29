@@ -31,6 +31,7 @@ export class ChatInterface {
     this.chatDisplay = null;       // Zone d'affichage des messages
     this.messageInput = null;      // Champ de saisie du message
     this.sendButton = null;        // Bouton d'envoi
+    this.loadingElement = null;    // Élément d'animation de chargement
   }
 
   /**
@@ -48,25 +49,28 @@ export class ChatInterface {
     this.showDictionary();
 
     // Configuration des événements (clic sur bouton, appui sur Entrée)
-    this.addEventListeners();
+    this.initEventListeners();
   }
 
   /**
-   * Ajoute les écouteurs d'événements pour l'interface.
-   * - Clic sur le bouton d'envoi
-   * - Appui sur la touche Entrée dans le champ de saisie
+   * Initialise les gestionnaires d'événements pour l'interface de chat.
    */
-  addEventListeners() {
-    // Envoi du message quand on clique sur le bouton
-    this.sendButton.addEventListener("click", () => {
-      this.sendMessage();
-    });
+  initEventListeners() {
+    // Gestionnaire pour le bouton d'envoi
+    this.sendButton.addEventListener("click", () => this.sendMessage());
 
-    // Envoi du message quand on appuie sur Entrée dans le champ
-    this.messageInput.addEventListener("keypress", (event) => {
-      if (event.key === "Enter") {
+    // Gestionnaire pour la touche Entrée dans le champ de saisie
+    this.messageInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
         this.sendMessage();
       }
+    });
+
+    // Auto-resize textarea as user types
+    this.messageInput.addEventListener("input", () => {
+      this.messageInput.style.height = "auto";
+      this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 200) + "px";
     });
   }
 
@@ -79,14 +83,14 @@ export class ChatInterface {
   }
 
   /**
-   * Ajoute un message à la zone de conversation.
+   * Ajoute un message à la conversation.
    * Gère différemment les messages de l'utilisateur et de l'assistant.
    *
    * @param {string} sender - L'expéditeur du message ('user' ou 'assistant')
    * @param {string} message - Le contenu du message
    */
   addMessageToChat(sender, message) {
-    // Création du conteneur de message
+    // Créer l'élément de message
     const messageElement = document.createElement("div");
     messageElement.classList.add("message");
 
@@ -97,7 +101,7 @@ export class ChatInterface {
       messageElement.classList.add("assistant-message");
     }
 
-    // Ajout du nom de l'expéditeur
+    // Ajouter le nom de l'expéditeur
     const senderElement = document.createElement("div");
     senderElement.classList.add("message-sender");
     senderElement.textContent = sender === "user" ? "Vous" : "Assistant";
@@ -127,7 +131,18 @@ export class ChatInterface {
           // Créer une représentation textuelle simple des arguments (juste les valeurs)
           let argsText = '';
           if (Object.keys(args).length > 0) {
-            argsText = Object.values(args).join(' ');
+            // Traiter chaque valeur pour ajouter des espaces après les virgules
+            const processedValues = Object.values(args).map(value => {
+              // Si c'est une chaîne de caractères avec des virgules, ajouter des espaces
+              if (typeof value === 'string') {
+                // Remplacer toutes les virgules par une virgule suivie d'un espace
+                return value.replace(/,(?!\s)/g, ', ');
+              }
+              return value;
+            });
+            
+            // Joindre les valeurs avec des virgules et des espaces
+            argsText = processedValues.join(', ');
           } else {
             argsText = '<em>Aucun argument</em>';
           }
@@ -182,38 +197,45 @@ export class ChatInterface {
   }
 
   /**
-   * Affiche un indicateur de chargement pendant que l'assistant génère une réponse.
-   *
-   * @returns {HTMLElement} - L'élément de chargement créé (pour pouvoir le supprimer plus tard)
+   * Affiche une animation de chargement dans la conversation.
    */
-  showLoadingIndicator() {
-    // Créer un élément de message pour l'indicateur de chargement
+  showLoadingAnimation() {
+    // Créer le conteneur de l'animation
     const loadingElement = document.createElement("div");
-    loadingElement.classList.add("message", "assistant-message");
-
-    // Ajouter le nom de l'expéditeur
-    const senderElement = document.createElement("div");
-    senderElement.classList.add("message-sender");
-    senderElement.textContent = "Assistant";
-    loadingElement.appendChild(senderElement);
-
-    // Ajouter le contenu avec l'animation de chargement
-    const contentElement = document.createElement("div");
-    contentElement.classList.add("message-content");
+    loadingElement.classList.add("message", "assistant-message", "loading-message");
     
-    // Créer l'animation de chargement
-    const loadingAnimation = document.createElement("div");
-    loadingAnimation.classList.add("loading-animation");
-    contentElement.appendChild(loadingAnimation);
-
-    // Assembler et ajouter à la conversation
-    loadingElement.appendChild(contentElement);
+    // Créer les points de chargement
+    const dotsContainer = document.createElement("div");
+    dotsContainer.classList.add("loading-dots");
+    
+    // Ajouter trois points
+    for (let i = 0; i < 3; i++) {
+      const dot = document.createElement("div");
+      dot.classList.add("dot");
+      dotsContainer.appendChild(dot);
+    }
+    
+    // Ajouter les points au message
+    loadingElement.appendChild(dotsContainer);
+    
+    // Ajouter l'animation à la conversation
     this.chatDisplay.appendChild(loadingElement);
     
     // Faire défiler vers le bas
     this.chatDisplay.scrollTop = this.chatDisplay.scrollHeight;
+    
+    // Stocker une référence à l'élément pour pouvoir le supprimer plus tard
+    this.loadingElement = loadingElement;
+  }
 
-    return loadingElement;
+  /**
+   * Supprime l'animation de chargement de la conversation.
+   */
+  hideLoadingAnimation() {
+    if (this.loadingElement && this.loadingElement.parentNode) {
+      this.loadingElement.parentNode.removeChild(this.loadingElement);
+      this.loadingElement = null;
+    }
   }
 
   /**
@@ -221,45 +243,46 @@ export class ChatInterface {
    * Cette fonction est appelée quand l'utilisateur clique sur Envoyer ou appuie sur Entrée.
    */
   async sendMessage() {
-    // Récupérer le message de l'utilisateur et supprimer les espaces inutiles
+    // Récupérer le message de l'utilisateur
     const userMessage = this.messageInput.value.trim();
-
-    // Ne rien faire si le message est vide
-    if (!userMessage) {
-      return;
-    }
+    if (!userMessage) return;
 
     // Ajouter le message de l'utilisateur à la conversation
     this.addMessageToChat("user", userMessage);
 
     // Effacer le champ de saisie
     this.messageInput.value = "";
+    this.messageInput.style.height = "auto";
 
-    // Afficher l'indicateur de chargement
-    const loadingElement = this.showLoadingIndicator();
+    // Afficher l'animation de chargement
+    this.showLoadingAnimation();
 
     try {
       // Obtenir le prompt système qui définit le comportement du modèle
       const systemPrompt = this.dictManager.getSystemPrompt();
+
+      // Formater le message pour ajouter des espaces après les virgules
+      const formattedMessage = userMessage.replace(/,/g, ', ').replace(/\s+/g, ' ').trim();
       
-      // Envoyer le message à LMStudio et attendre la réponse
+      // Obtenir la réponse de l'assistant
       const response = await this.lmClient.sendMessage(
         systemPrompt,
-        userMessage
+        formattedMessage
       );
 
-      // Supprimer l'indicateur de chargement
-      this.chatDisplay.removeChild(loadingElement);
+      // Supprimer l'animation de chargement
+      this.hideLoadingAnimation();
 
       // Ajouter la réponse de l'assistant à la conversation
       this.addMessageToChat("assistant", response);
     } catch (error) {
-      // En cas d'erreur, supprimer l'indicateur de chargement
-      this.chatDisplay.removeChild(loadingElement);
+      // En cas d'erreur, supprimer l'animation de chargement
+      this.hideLoadingAnimation();
 
       // Afficher un message d'erreur
       const errorMessage = `Erreur: ${error.message}`;
       this.addMessageToChat("assistant", errorMessage);
+      console.error("Erreur lors de l'obtention de la réponse:", error);
     }
   }
 }

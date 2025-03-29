@@ -7,11 +7,13 @@ import { TerminalInterface } from "../ui/TerminalInterface.js";
 
 export class FunctionRegistry {
   /**
-   * Initialise le registre de fonctions.
+   * Constructeur du registre de fonctions.
+   * Initialise les fonctions disponibles et le gestionnaire de fonctions.
    *
-   * @param {Object} functionHandler - Le gestionnaire de fonctions
+   * @param {Object} functionHandler - Le gestionnaire de fonctions qui traitera les appels
    */
   constructor(functionHandler) {
+    this.functions = {};
     this.functionHandler = functionHandler;
     this.terminal = null;
 
@@ -113,65 +115,46 @@ export class FunctionRegistry {
           const theme = args.theme || "theme-light";
           const themes = [
             "theme-light",
-            "theme-dark",
-            "theme-blue",
-            "theme-green",
+            "dark-theme",
+            "blue-theme",
+            "green-theme",
           ];
 
           // Map des anciens noms de thèmes vers les nouveaux
           const themeMap = {
-            clair: "theme-light",
-            sombre: "theme-dark",
-            bleu: "theme-blue",
-            vert: "theme-green",
+            "light": "theme-light",
+            "dark": "dark-theme",
+            "blue": "blue-theme",
+            "green": "green-theme"
           };
 
-          // Si un ancien nom de thème est utilisé, le convertir
-          let themeToApply = theme;
-          if (themeMap[theme]) {
-            themeToApply = themeMap[theme];
-          }
-
+          // Convertir l'ancien nom de thème si nécessaire
+          const normalizedTheme = themeMap[theme] || theme;
+          
           // Vérifier si le thème est valide
-          if (!themes.includes(themeToApply)) {
-            const result = {
+          if (!themes.includes(normalizedTheme)) {
+            return {
               success: false,
-              message: `Thème invalide: ${theme}. Thèmes disponibles: clair, sombre, bleu, vert`,
+              message: `Thème non valide. Les thèmes disponibles sont: ${themes.join(", ")}`,
             };
-            this.showInTerminal("changer_theme", args, result);
-            return result;
           }
 
-          // Supprimer tous les thèmes du body
-          document.body.className = "";
+          // Utiliser la fonction globale de changement de thème
+          if (typeof window.changeTheme === "function") {
+            window.changeTheme(normalizedTheme);
+          }
 
-          // Appliquer le nouveau thème
-          document.body.classList.add(themeToApply);
-
-          // Sauvegarder le choix dans le stockage local
-          localStorage.setItem("theme", themeToApply);
-
-          // Mettre à jour l'état actif des boutons de thème
-          const themeButtons = document.querySelectorAll(".theme-button");
-          themeButtons.forEach((btn) => {
-            btn.classList.remove("active");
-            if (btn.getAttribute("data-theme") === themeToApply) {
-              btn.classList.add("active");
-            }
-          });
-
-          const result = {
+          return {
             success: true,
-            message: `Thème changé pour: ${theme}`,
+            message: `Thème changé pour: ${normalizedTheme}`,
           };
-          this.showInTerminal("changer_theme", args, result);
-          return result;
         },
         description: "Change le thème de l'application",
         parameters: {
           theme: {
             type: "string",
-            description: "Le thème à appliquer (clair, sombre, bleu, vert)",
+            description:
+              "Le thème à appliquer. Valeurs possibles: theme-light, dark-theme, blue-theme, green-theme",
           },
         },
       },
@@ -306,12 +289,10 @@ export class FunctionRegistry {
   /**
    * Initialise le terminal pour afficher les résultats des fonctions.
    *
-   * @param {HTMLElement} terminalElement - L'élément DOM du terminal
+   * @param {Object} terminal - Le terminal à utiliser
    */
-  initializeTerminal(terminalElement) {
-    // Cette méthode initialise le terminal pour afficher les résultats des fonctions.
-    this.terminal = new TerminalInterface(terminalElement);
-    this.terminal.initialize();
+  initializeTerminal(terminal) {
+    this.terminal = terminal;
   }
 
   /**
@@ -331,16 +312,43 @@ export class FunctionRegistry {
   }
 
   /**
-   * Affiche le résultat d'une fonction dans le terminal.
+   * Affiche les résultats d'une fonction dans le terminal.
    *
-   * @param {string} functionName - Nom de la fonction exécutée
-   * @param {Object} args - Arguments passés à la fonction
-   * @param {Object} result - Résultat de l'exécution de la fonction
+   * @param {string} functionName - Le nom de la fonction
+   * @param {Object} args - Les arguments de la fonction
+   * @param {Object} result - Le résultat de la fonction
    */
   showInTerminal(functionName, args, result) {
-    // Cette méthode affiche le résultat d'une fonction dans le terminal.
-    if (this.terminal) {
-      this.terminal.addFunctionResult(functionName, args, result);
+    if (!this.terminal) return;
+
+    // Formater les arguments pour un meilleur affichage
+    let processedArgs = {};
+    for (const key in args) {
+      if (typeof args[key] === 'string' && args[key].includes(',')) {
+        // Ajouter des espaces après les virgules dans les chaînes de caractères
+        processedArgs[key] = args[key].replace(/,/g, ', ').replace(/\s+/g, ' ').trim();
+      } else {
+        processedArgs[key] = args[key];
+      }
     }
+
+    const timestamp = new Date().toLocaleTimeString();
+    const argsStr = JSON.stringify(processedArgs, null, 2);
+    const resultStr = JSON.stringify(result, null, 2);
+
+    const content = `
+      <div class="terminal-line">
+        <span style="color: #75b5aa">[${timestamp}]</span>
+        <span style="color: #f8c555">Fonction: ${functionName}</span>
+        <div style="margin-left: 15px; margin-top: 5px;">
+          <span style="color: #7ec699">Arguments:</span>
+          <pre style="color: #dcdcdc; margin: 5px 0;">${argsStr}</pre>
+          <span style="color: ${result.success !== false ? '#7ec699' : '#e06c75'}">Résultat:</span>
+          <pre style="color: #dcdcdc; margin: 5px 0;">${resultStr}</pre>
+        </div>
+      </div>
+    `;
+
+    this.terminal.append(content);
   }
 }

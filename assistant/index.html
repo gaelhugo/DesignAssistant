@@ -2,60 +2,68 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat avec Dictionnaire Limité</title>
+    <title>Chat lexical</title>
     <link rel="stylesheet" href="/src/styles/style.css" />
   </head>
   <body>
-    <div id="app" class="grid-container">
-      <header class="header">
-        <div class="header-left">
-          <h1>Chat lexical</h1>
-        </div>
-        <div class="header-right">
-          <div class="mode-selector"></div>
-          <div class="theme-selector"></div>
-        </div>
-      </header>
-
+    <div id="app" class="chatgpt-layout">
+      <!-- Sidebar -->
       <aside class="sidebar">
+        <div class="sidebar-header">
+          <button class="new-chat-button">
+            <span>+ Nouvelle conversation</span>
+          </button>
+        </div>
+        
         <div class="dictionary-section">
-          <h2>Dictionnaire</h2>
+          <h3>Dictionnaire</h3>
           <div id="dictionary-display" class="dictionary-display"></div>
+        </div>
+        
+        <div class="sidebar-footer">
+          <div class="theme-selector">
+            <button class="theme-button" data-theme="theme-light">Clair</button>
+            <button class="theme-button" data-theme="dark-theme">Sombre</button>
+            <button class="theme-button" data-theme="blue-theme">Bleu</button>
+            <button class="theme-button" data-theme="green-theme">Vert</button>
+          </div>
         </div>
       </aside>
 
+      <!-- Main content -->
       <main class="main-content">
-        <div class="chat-section">
-          <h2>Conversation</h2>
-          <div id="chat-display" class="chat-display"></div>
+        <div class="chat-header">
+          <h1>Chat lexical</h1>
+          <div class="mode-selector"></div>
         </div>
-
-        <div class="input-section">
-          <input
-            type="text"
-            id="message-input"
-            placeholder="Écrivez votre message ici..."
-          />
-          <button id="send-button">Envoyer</button>
+        
+        <div class="chat-container">
+          <div id="chat-display" class="chat-display"></div>
+          <div class="input-container">
+            <textarea class="input-area" id="message-input" placeholder="Poser une question..." rows="1"></textarea>
+            <button class="send-button" id="send-button">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M.5 1.5l15 6.5-15 6.5m0-13v4l7 2.5L.5 12v4" />
+              </svg>
+            </button>
+          </div>
+          <div class="disclaimer">
+            ChatGPT peut faire des erreurs. Envisagez de vérifier les informations importantes.
+          </div>
         </div>
       </main>
 
-      <footer class="terminal-container">
-        <h2>Terminal</h2>
-        <div class="terminal-section">
-          <div id="function-results" class="terminal-content">
-            <div class="terminal-line">
-              <span class="terminal-prompt">$</span>
-              <span class="terminal-text empty-state"
-                >Aucun résultat de fonction à afficher</span
-              >
-            </div>
-          </div>
+      <!-- Terminal -->
+      <div id="terminal-container" class="terminal-container hidden">
+        <div class="terminal-header" id="terminal-header">
+          <div class="terminal-title">Terminal</div>
+          <button class="terminal-close" id="close-terminal-button">&times;</button>
         </div>
-      </footer>
+        <div class="terminal-content" id="terminal-content"></div>
+      </div>
     </div>
+    
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
