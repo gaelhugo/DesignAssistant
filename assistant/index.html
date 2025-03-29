@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat lexical</title>
     <link rel="stylesheet" href="/src/styles/style.css" />
-    <link rel="stylesheet" href="/src/minify/minify.css">
+    <link rel="stylesheet" href="/src/minify/minify.css" />
   </head>
   <body>
     <div id="app" class="chatgpt-layout">
@@ -38,8 +38,22 @@
           <h1>Chat lexical</h1>
           <div class="header-controls">
             <div class="mode-selector"></div>
-            <button id="minify-button" class="minify-button" title="Minimiser le chat">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button
+              id="minify-button"
+              class="minify-button"
+              title="Minimiser le chat"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <polyline points="4 14 10 14 10 20"></polyline>
                 <polyline points="20 10 14 10 14 4"></polyline>
                 <line x1="14" y1="10" x2="21" y2="3"></line>
@@ -60,13 +74,19 @@
             ></textarea>
             <button class="send-button" id="send-button">
               <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
                 fill="none"
-                stroke="currentColor"
-                stroke-width="2"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <path d="M.5 1.5l15 6.5-15 6.5m0-13v4l7 2.5L.5 12v4" />
+                <path
+                  d="M7 11L12 6L17 11M12 18V7"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </svg>
             </button>
           </div>

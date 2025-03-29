@@ -15,23 +15,23 @@ export class ChatInterface {
    */
   constructor(lmClient, dictManager, functionHandler = null) {
     // Stockage des dépendances
-    this.lmClient = lmClient;           // Pour envoyer des messages à l'API
-    this.dictManager = dictManager;     // Pour gérer le dictionnaire de mots
+    this.lmClient = lmClient; // Pour envoyer des messages à l'API
+    this.dictManager = dictManager; // Pour gérer le dictionnaire de mots
     this.functionHandler = functionHandler; // Pour exécuter des fonctions
 
     // Initialisation du parser markdown pour formater les messages
     this.md = new MarkdownIt({
-      html: false,        // Désactive le HTML pour la sécurité
-      linkify: true,      // Convertit les URLs en liens cliquables
-      typographer: true,  // Active les améliorations typographiques
+      html: false, // Désactive le HTML pour la sécurité
+      linkify: true, // Convertit les URLs en liens cliquables
+      typographer: true, // Active les améliorations typographiques
     });
 
     // Éléments du DOM (initialisés à null, seront définis dans initialize())
     this.dictionaryDisplay = null; // Affichage du dictionnaire
-    this.chatDisplay = null;       // Zone d'affichage des messages
-    this.messageInput = null;      // Champ de saisie du message
-    this.sendButton = null;        // Bouton d'envoi
-    this.loadingElement = null;    // Élément d'animation de chargement
+    this.chatDisplay = null; // Zone d'affichage des messages
+    this.messageInput = null; // Champ de saisie du message
+    this.sendButton = null; // Bouton d'envoi
+    this.loadingElement = null; // Élément d'animation de chargement
   }
 
   /**
@@ -44,13 +44,6 @@ export class ChatInterface {
     this.chatDisplay = document.getElementById("chat-display");
     this.messageInput = document.getElementById("message-input");
     this.sendButton = document.getElementById("send-button");
-    
-    // Styliser le bouton d'envoi pour utiliser l'icône SVG
-    this.sendButton.innerHTML = `
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    `;
 
     // Affichage du dictionnaire de mots disponibles
     this.showDictionary();
@@ -77,7 +70,8 @@ export class ChatInterface {
     // Auto-resize textarea as user types
     this.messageInput.addEventListener("input", () => {
       this.messageInput.style.height = "auto";
-      this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 200) + "px";
+      this.messageInput.style.height =
+        Math.min(this.messageInput.scrollHeight, 200) + "px";
     });
   }
 
@@ -86,7 +80,8 @@ export class ChatInterface {
    */
   showDictionary() {
     // Récupère la liste formatée des mots et l'affiche
-    this.dictionaryDisplay.textContent = this.dictManager.getFormattedWordList();
+    this.dictionaryDisplay.textContent =
+      this.dictManager.getFormattedWordList();
   }
 
   /**
@@ -134,26 +129,26 @@ export class ChatInterface {
         if (jsonResponse.name && jsonResponse.arguments) {
           // C'est un appel de fonction
           const args = jsonResponse.arguments;
-          
+
           // Créer une représentation textuelle simple des arguments (juste les valeurs)
-          let argsText = '';
+          let argsText = "";
           if (Object.keys(args).length > 0) {
             // Traiter chaque valeur pour ajouter des espaces après les virgules
-            const processedValues = Object.values(args).map(value => {
+            const processedValues = Object.values(args).map((value) => {
               // Si c'est une chaîne de caractères avec des virgules, ajouter des espaces
-              if (typeof value === 'string') {
+              if (typeof value === "string") {
                 // Remplacer toutes les virgules par une virgule suivie d'un espace
-                return value.replace(/,(?!\s)/g, ', ');
+                return value.replace(/,(?!\s)/g, ", ");
               }
               return value;
             });
-            
+
             // Joindre les valeurs avec des virgules et des espaces
-            argsText = processedValues.join(', ');
+            argsText = processedValues.join(", ");
           } else {
-            argsText = '<em>Aucun argument</em>';
+            argsText = "<em>Aucun argument</em>";
           }
-          
+
           contentElement.innerHTML = `<div class="function-result">${argsText}</div>`;
         } else {
           // Fallback pour les autres types de JSON
@@ -209,28 +204,32 @@ export class ChatInterface {
   showLoadingAnimation() {
     // Créer le conteneur de l'animation
     const loadingElement = document.createElement("div");
-    loadingElement.classList.add("message", "assistant-message", "loading-message");
-    
+    loadingElement.classList.add(
+      "message",
+      "assistant-message",
+      "loading-message"
+    );
+
     // Créer les points de chargement
     const dotsContainer = document.createElement("div");
     dotsContainer.classList.add("loading-dots");
-    
+
     // Ajouter trois points
     for (let i = 0; i < 3; i++) {
       const dot = document.createElement("div");
       dot.classList.add("dot");
       dotsContainer.appendChild(dot);
     }
-    
+
     // Ajouter les points au message
     loadingElement.appendChild(dotsContainer);
-    
+
     // Ajouter l'animation à la conversation
     this.chatDisplay.appendChild(loadingElement);
-    
+
     // Faire défiler vers le bas
     this.chatDisplay.scrollTop = this.chatDisplay.scrollHeight;
-    
+
     // Stocker une référence à l'élément pour pouvoir le supprimer plus tard
     this.loadingElement = loadingElement;
   }
@@ -269,8 +268,11 @@ export class ChatInterface {
       const systemPrompt = this.dictManager.getSystemPrompt();
 
       // Formater le message pour ajouter des espaces après les virgules
-      const formattedMessage = userMessage.replace(/,/g, ', ').replace(/\s+/g, ' ').trim();
-      
+      const formattedMessage = userMessage
+        .replace(/,/g, ", ")
+        .replace(/\s+/g, " ")
+        .trim();
+
       // Obtenir la réponse de l'assistant
       const response = await this.lmClient.sendMessage(
         systemPrompt,
