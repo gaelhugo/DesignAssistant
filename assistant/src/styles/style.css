@@ -161,6 +161,12 @@ input {
   height: 60px;
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
 .chat-container {
   display: flex;
   flex-direction: column;

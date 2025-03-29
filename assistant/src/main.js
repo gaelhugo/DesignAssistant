@@ -3,12 +3,13 @@
  * Ce fichier initialise tous les composants et démarre l'application.
  */
 import './styles/style.css';
-import { DictionaryManager } from './dictionary/DictionaryManager.js';
-import { JsonDictionaryManager } from './dictionary/JsonDictionaryManager.js';
-import { LMStudioClient } from './api/LMStudioClient.js';
 import { ChatInterface } from './ui/ChatInterface.js';
 import { FunctionCallHandler } from './functions/FunctionCallHandler.js';
 import { FunctionRegistry } from './functions/FunctionRegistry.js';
+import { JsonDictionaryManager } from './dictionary/JsonDictionaryManager.js';
+import { DictionaryManager } from './dictionary/DictionaryManager.js';
+import { LMStudioClient } from './api/LMStudioClient.js';
+import { MinifyManager } from './minify/MinifyManager.js';
 
 // Attendre que le DOM soit complètement chargé avant d'initialiser l'application
 document.addEventListener('DOMContentLoaded', () => {
@@ -65,14 +66,43 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. Initialiser le sélecteur de thème
   initializeThemeSelector();
   
-  // 5. Initialiser le terminal
+  // 4. Initialiser le terminal
   const terminal = initTerminal();
   
   // Connecter le terminal au registre de fonctions
   functionRegistry.initializeTerminal(terminal);
   
-  // 6. Initialiser les boutons de l'interface ChatGPT
+  // 5. Initialiser les boutons de l'interface ChatGPT
   initializeChatGPTInterface(terminal);
+  
+  // 6. Initialiser le gestionnaire de minimisation
+  const minifyManager = new MinifyManager(chatInterface);
+  minifyManager.initialize();
+  
+  // Fonction globale pour changer de thème
+  window.changeTheme = (theme) => {
+    // Supprimer toutes les classes de thème existantes
+    document.body.classList.remove('theme-light', 'dark-theme', 'blue-theme', 'green-theme');
+    
+    // Ajouter la nouvelle classe de thème
+    document.body.classList.add(theme);
+    
+    // Sauvegarder le thème dans le localStorage
+    localStorage.setItem('theme', theme);
+  };
+  
+  // Initialisation des boutons de thème
+  const themeButtons = document.querySelectorAll('.theme-button');
+  themeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const theme = button.getAttribute('data-theme');
+      window.changeTheme(theme);
+    });
+  });
+  
+  // Charger le thème sauvegardé ou utiliser le thème par défaut
+  const savedTheme = localStorage.getItem('theme') || 'theme-light';
+  window.changeTheme(savedTheme);
 });
 
 /**
@@ -152,9 +182,6 @@ function initializeThemeSelector() {
   // Charger le thème sauvegardé ou utiliser le thème par défaut
   const savedTheme = localStorage.getItem("theme") || "theme-light";
   changeTheme(savedTheme);
-  
-  // Exposer la fonction de changement de thème globalement pour que FunctionRegistry puisse l'utiliser
-  window.changeTheme = changeTheme;
 }
 
 /**
