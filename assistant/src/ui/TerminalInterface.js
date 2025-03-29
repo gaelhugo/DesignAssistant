@@ -11,6 +11,13 @@ export class TerminalInterface {
   constructor(terminalElement) {
     // Élément DOM qui contiendra le terminal
     this.terminalElement = terminalElement;
+    this.terminalContainer = document.getElementById("terminal-container");
+    this.terminalHeader = document.getElementById("terminal-header");
+    this.closeButton = document.getElementById("close-terminal-button");
+    
+    // Initialiser les boutons et le comportement du terminal
+    this.setupTerminalControls();
+    this.setupDraggable();
   }
 
   /**
@@ -23,6 +30,66 @@ export class TerminalInterface {
       // Si oui, ajouter un message d'état vide
       this.addEmptyState();
     }
+  }
+
+  /**
+   * Configure les boutons de contrôle du terminal (ouverture/fermeture).
+   */
+  setupTerminalControls() {
+    // Créer le bouton de basculement
+    const toggleButton = document.createElement("button");
+    toggleButton.textContent = "Terminal";
+    toggleButton.classList.add("toggle-terminal-button");
+    document.querySelector(".chat-header").appendChild(toggleButton);
+    
+    // Afficher/masquer le terminal
+    toggleButton.addEventListener("click", () => {
+      this.toggle();
+    });
+    
+    // Fermer le terminal
+    this.closeButton.addEventListener("click", () => {
+      this.hide();
+    });
+  }
+  
+  /**
+   * Configure le comportement de déplacement du terminal.
+   */
+  setupDraggable() {
+    let isDragging = false;
+    let offsetX, offsetY;
+    
+    this.terminalHeader.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      offsetX = e.clientX - this.terminalContainer.getBoundingClientRect().left;
+      offsetY = e.clientY - this.terminalContainer.getBoundingClientRect().top;
+      
+      // Appliquer les styles pendant le déplacement
+      this.terminalContainer.style.transition = "none";
+      document.body.style.userSelect = "none";
+    });
+    
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      
+      const x = e.clientX - offsetX;
+      const y = e.clientY - offsetY;
+      
+      // Limiter le déplacement pour que le terminal reste visible
+      const maxX = window.innerWidth - this.terminalContainer.offsetWidth;
+      const maxY = window.innerHeight - this.terminalContainer.offsetHeight;
+      
+      this.terminalContainer.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+      this.terminalContainer.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+      this.terminalContainer.style.bottom = "auto";
+      this.terminalContainer.style.right = "auto";
+    });
+    
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+      document.body.style.userSelect = "";
+    });
   }
 
   /**
@@ -140,5 +207,40 @@ export class TerminalInterface {
     
     // Ajouter un nouvel état vide
     this.addEmptyState();
+  }
+  
+  /**
+   * Affiche le terminal.
+   */
+  show() {
+    this.terminalContainer.classList.remove("hidden");
+  }
+  
+  /**
+   * Cache le terminal.
+   */
+  hide() {
+    this.terminalContainer.classList.add("hidden");
+  }
+  
+  /**
+   * Bascule l'affichage du terminal.
+   */
+  toggle() {
+    this.terminalContainer.classList.toggle("hidden");
+  }
+  
+  /**
+   * Ajoute du contenu HTML au terminal.
+   * 
+   * @param {string} content - Le contenu HTML à ajouter
+   */
+  append(content) {
+    const line = document.createElement("div");
+    line.innerHTML = content;
+    this.terminalElement.appendChild(line);
+    
+    // Auto-scroll vers le bas
+    this.terminalElement.scrollTop = this.terminalElement.scrollHeight;
   }
 }
