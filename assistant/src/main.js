@@ -32,9 +32,9 @@ function start() {
     "Vent",
     "Terre",
     "Montagne",
-    "Rivière",
-    "Forêt",
-    "Océan",
+    "Riviere",
+    "Foret",
+    "Ocean",
     "Plage",
     "Ciel",
     "Nuage",
@@ -50,7 +50,7 @@ function start() {
     "Graine",
     "Roche",
     "Sable",
-    "Étoile",
+    "Etoile",
     "Lune",
     "Herbe",
     "Prairie",
@@ -77,12 +77,6 @@ function start() {
     useJsonMode ? dictManager : null
   );
 
-  // 4. Créer le registre de fonctions qui définit toutes les fonctions disponibles
-  const functionRegistry = new FunctionRegistry(functionHandler);
-
-  // Enregistrer toutes les fonctions définies dans le registre
-  functionRegistry.registerAllFunctions();
-
   // ===== INTERFACE UTILISATEUR =====
 
   // 1. Initialiser l'interface de chat
@@ -108,12 +102,22 @@ function start() {
   const terminal = new TerminalInterface(terminalElement);
   terminal.initialize();
 
-  // 5. Configurer le terminal dans le registre de fonctions
-  functionRegistry.initializeTerminal(terminal);
-
   // 6. Initialiser le gestionnaire de minimisation
   const minifyManager = new MinifyManager(chatInterface);
   minifyManager.initialize();
+
+  // 4. Créer le registre de fonctions qui définit toutes les fonctions disponibles
+  const functionRegistry = new FunctionRegistry(
+    functionHandler,
+    minifyManager.canvasManager
+  );
+
+  // 5. Enregistrer toutes les fonctions définies dans le registre
+  functionRegistry.registerAllFunctions();
+
+  // 6. Configurer le terminal dans le registre de fonctions
+  functionRegistry.initializeTerminal(terminal);
+
   // });
 }
 

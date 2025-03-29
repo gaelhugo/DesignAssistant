@@ -10,10 +10,11 @@ export class FunctionRegistry {
    *
    * @param {Object} functionHandler - Le gestionnaire de fonctions qui traitera les appels
    */
-  constructor(functionHandler) {
+  constructor(functionHandler, canvasManager) {
     this.functions = {};
     this.functionHandler = functionHandler;
     this.terminal = null;
+    this.canvasFunctions = canvasManager.canvasFunctions;
 
     // Définition des fonctions disponibles
     this.availableFunctions = {
@@ -234,6 +235,34 @@ export class FunctionRegistry {
           track: {
             type: "string",
             description: "Le nom du morceau à jouer. ",
+          },
+        },
+      },
+
+      dessiner_images: {
+        handler: (args) => {
+          this.terminal.showInTerminal(
+            "dessiner_images",
+            args,
+            "dessiner dans le canvas"
+          );
+          console.log("args.mots", args.mots);
+          this.canvasFunctions.clear();
+          args.mots.forEach((mot) => {
+            this.canvasFunctions.addImage(mot + ".png");
+          });
+          return "Dessiné dans le canvas";
+        },
+        description:
+          "Traite une réponse en utilisant strictement les mots du dictionnaire.",
+        parameters: {
+          mots: {
+            type: "array",
+            description:
+              "Liste des mots du dictionnaire à utiliser dans la réponse.",
+            items: {
+              type: "string",
+            },
           },
         },
       },
