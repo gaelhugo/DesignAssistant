@@ -222,37 +222,65 @@ export class MinifyManager {
    * Minimise le chat et affiche le canvas plein écran.
    */
   minimize() {
-    if (this.isMinified) return;
+    // Cacher la sidebar
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.add('hidden');
+    }
     
-    // Masquer l'interface principale
-    document.querySelector('.chatgpt-layout').classList.add('hidden');
+    // Cacher l'interface principale, mais pas le terminal
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.classList.add('hidden');
+    }
     
-    // Afficher le chat minimisé et le canvas
-    this.minifiedChat.classList.remove('hidden');
-    this.canvas.classList.remove('hidden');
+    // Vérifier si le terminal est ouvert
+    const terminalContainer = document.getElementById('terminal-container');
+    const isTerminalVisible = terminalContainer && !terminalContainer.classList.contains('hidden');
     
-    // Mettre à jour l'état
-    this.isMinified = true;
+    // Afficher le canvas plein écran (sauf si le terminal est visible)
+    if (this.canvas && !isTerminalVisible) {
+      this.canvas.classList.remove('hidden');
+      this.resizeCanvas();
+    }
     
-    // Redimensionner le canvas
-    this.resizeCanvas();
+    // Afficher le chat minimisé
+    if (this.minifiedChat) {
+      this.minifiedChat.classList.remove('hidden');
+    }
+    
+    // Ne pas forcer l'ouverture du terminal s'il n'est pas déjà ouvert
+    // Le terminal reste simplement dans son état actuel (ouvert ou fermé)
   }
 
   /**
-   * Agrandit le chat et masque le canvas.
+   * Agrandit le chat et cache le canvas plein écran.
    */
   expand() {
-    if (!this.isMinified) return;
+    // Afficher la sidebar
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.remove('hidden');
+    }
     
     // Afficher l'interface principale
-    document.querySelector('.chatgpt-layout').classList.remove('hidden');
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.classList.remove('hidden');
+    }
     
-    // Masquer le chat minimisé et le canvas
-    this.minifiedChat.classList.add('hidden');
-    this.canvas.classList.add('hidden');
+    // Cacher le canvas plein écran
+    if (this.canvas) {
+      this.canvas.classList.add('hidden');
+    }
     
-    // Mettre à jour l'état
-    this.isMinified = false;
+    // Cacher le chat minimisé
+    if (this.minifiedChat) {
+      this.minifiedChat.classList.add('hidden');
+    }
+    
+    // Laisser le terminal dans son état actuel
+    // (pas de changement de position ou de visibilité)
   }
 
   /**
