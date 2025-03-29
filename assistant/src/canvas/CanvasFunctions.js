@@ -36,15 +36,36 @@ export default class CanvasFunctions {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     // console.log("Drawing");
-    this.images.forEach((img) => {
-      this.ctx.drawImage(
-        img.image,
-        img.x + Math.random() * 2,
-        img.y + Math.random() * 2,
-        img.width,
-        img.height
-      );
-    });
+    // this.images.forEach((img) => {
+    //   this.ctx.drawImage(
+    //     img.image,
+    //     img.x + Math.random() * 2,
+    //     img.y + Math.random() * 2,
+    //     img.width,
+    //     img.height
+    //   );
+    this.displayImagesGrid(this.images);
+    // });
     requestAnimationFrame(() => this.draw());
+  }
+
+  /**
+   * Displays images in a structured grid layout
+   * @param {Array} images - Array of image URLs or objects
+   * @param {Object} options - Layout options
+   */
+  displayImagesGrid(images, options = {}) {
+    const { columns = 3, spacing = 20 } = options;
+    const canvasWidth = this.canvas.width;
+    const imageWidth = (canvasWidth - (columns + 1) * spacing) / columns;
+
+    images.forEach((image, index) => {
+      const row = Math.floor(index / columns);
+      const col = index % columns;
+      const x = col * (imageWidth + spacing) + spacing;
+      const y = row * (imageWidth + spacing) + spacing;
+
+      this.ctx.drawImage(image.image, x, y, imageWidth, imageWidth);
+    });
   }
 }
