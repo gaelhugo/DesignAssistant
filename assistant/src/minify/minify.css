@@ -88,6 +88,38 @@
   align-items: center;
   position: relative;
   width: 100%;
+  min-height: 32px;
+}
+
+/* Loader pour le chat minimisé */
+.minified-loader {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background-color: var(--color-primary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 5;
+}
+
+.minified-loader.active {
+  opacity: 1;
+  animation: progress-line 2s infinite ease-in-out;
+}
+
+@keyframes progress-line {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
 }
 
 /* Zone de texte minimisée */
@@ -110,6 +142,12 @@
 .minified-input-area:focus {
   outline: none;
   border-color: var(--color-primary);
+}
+
+.minified-input-area:disabled {
+  opacity: 0.7;
+  color: var(--color-text);
+  background-color: var(--color-background);
 }
 
 /* Bouton d'envoi minimisé */

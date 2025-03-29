@@ -122,20 +122,22 @@ export class FunctionRegistry {
 
           // Map des anciens noms de thèmes vers les nouveaux
           const themeMap = {
-            "light": "theme-light",
-            "dark": "dark-theme",
-            "blue": "blue-theme",
-            "green": "green-theme"
+            light: "theme-light",
+            dark: "dark-theme",
+            blue: "blue-theme",
+            green: "green-theme",
           };
 
           // Convertir l'ancien nom de thème si nécessaire
           const normalizedTheme = themeMap[theme] || theme;
-          
+
           // Vérifier si le thème est valide
           if (!themes.includes(normalizedTheme)) {
             return {
               success: false,
-              message: `Thème non valide. Les thèmes disponibles sont: ${themes.join(", ")}`,
+              message: `Thème non valide. Les thèmes disponibles sont: ${themes.join(
+                ", "
+              )}`,
             };
           }
 
@@ -228,12 +230,12 @@ export class FunctionRegistry {
 
           return result;
         },
-        description: "Joue un morceau dans l'application iTunes sur votre Mac",
+        description:
+          "Joue un morceau dans l'application iTunes sur votre Mac. Actuellement uniquement disponible ces morceaux : 'Winter Sleep (Original Mix)' ou 'Party People' ou le nom de la track demandée expressément par l'utilisateur. Ne jamais retourner un json sans nom de morceau.",
         parameters: {
           track: {
             type: "string",
-            description:
-              "Le nom du morceau à jouer. Actuellement uniquement disponible ces morceaux : 'Winter Sleep (Original Mix)' ou 'Party People' ou le nom de la track demandée expressément par l'utilisateur",
+            description: "Le nom du morceau à jouer. ",
           },
         },
       },
@@ -324,9 +326,12 @@ export class FunctionRegistry {
     // Formater les arguments pour un meilleur affichage
     let processedArgs = {};
     for (const key in args) {
-      if (typeof args[key] === 'string' && args[key].includes(',')) {
+      if (typeof args[key] === "string" && args[key].includes(",")) {
         // Ajouter des espaces après les virgules dans les chaînes de caractères
-        processedArgs[key] = args[key].replace(/,/g, ', ').replace(/\s+/g, ' ').trim();
+        processedArgs[key] = args[key]
+          .replace(/,/g, ", ")
+          .replace(/\s+/g, " ")
+          .trim();
       } else {
         processedArgs[key] = args[key];
       }
@@ -343,7 +348,9 @@ export class FunctionRegistry {
         <div style="margin-left: 15px; margin-top: 5px;">
           <span style="color: #7ec699">Arguments:</span>
           <pre style="color: #dcdcdc; margin: 5px 0;">${argsStr}</pre>
-          <span style="color: ${result.success !== false ? '#7ec699' : '#e06c75'}">Résultat:</span>
+          <span style="color: ${
+            result.success !== false ? "#7ec699" : "#e06c75"
+          }">Résultat:</span>
           <pre style="color: #dcdcdc; margin: 5px 0;">${resultStr}</pre>
         </div>
       </div>

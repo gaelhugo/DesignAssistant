@@ -71,6 +71,11 @@ export class MinifyManager {
     const minifiedInput = document.createElement('div');
     minifiedInput.classList.add('minified-input-container');
     
+    // Créer le loader minimaliste (ligne simple)
+    const minifiedLoader = document.createElement('div');
+    minifiedLoader.classList.add('minified-loader');
+    minifiedLoader.id = 'minified-loader';
+    
     // Copier l'input existant pour maintenir les fonctionnalités
     const originalInput = document.getElementById('message-input');
     const minifiedTextarea = document.createElement('textarea');
@@ -101,9 +106,10 @@ export class MinifyManager {
     minifiedInput.appendChild(minifiedTextarea);
     minifiedInput.appendChild(minifiedSendButton);
     
-    // Assembler le chat minimisé
+    // Ajouter le loader à la fin du chat minimisé (pas dans l'input)
     this.minifiedChat.appendChild(this.expandButton);
     this.minifiedChat.appendChild(minifiedInput);
+    this.minifiedChat.appendChild(minifiedLoader);
     
     // Ajouter à la page
     document.body.appendChild(this.minifiedChat);
@@ -292,6 +298,25 @@ export class MinifyManager {
     
     if (!message) return;
     
+    // Sauvegarder la hauteur actuelle du textarea
+    const currentHeight = minifiedTextarea.style.height;
+    
+    // Afficher le loader
+    const loader = document.getElementById('minified-loader');
+    if (loader) {
+      loader.classList.add('active');
+    }
+    
+    // Désactiver le textarea et le bouton pendant le traitement
+    // mais conserver sa hauteur
+    minifiedTextarea.disabled = true;
+    minifiedTextarea.style.height = currentHeight || '32px';
+    
+    const sendButton = document.getElementById('minified-send-button');
+    if (sendButton) {
+      sendButton.disabled = true;
+    }
+    
     // Copier le message dans le textarea principal
     const originalTextarea = document.getElementById('message-input');
     originalTextarea.value = message;
@@ -299,14 +324,96 @@ export class MinifyManager {
     // Déclencher l'envoi du message via l'interface de chat
     if (typeof this.chatInterface.sendMessage === 'function') {
       this.chatInterface.sendMessage();
+      
+      // Observer les changements dans le chat pour détecter la fin du traitement
+      this.observeChatForResponse();
     } else {
       // Fallback si la méthode n'est pas disponible directement
-      const sendButton = document.getElementById('send-button');
-      sendButton.click();
+      const mainSendButton = document.getElementById('send-button');
+      mainSendButton.click();
+      
+      // Observer les changements dans le chat pour détecter la fin du traitement
+      this.observeChatForResponse();
     }
     
-    // Effacer le textarea minifié
+    // Vider le textarea minimisé mais conserver sa hauteur
     minifiedTextarea.value = '';
-    minifiedTextarea.style.height = 'auto';
+  }
+  
+  /**
+   * Observe les changements dans le chat pour détecter quand une réponse est reçue.
+   */
+  observeChatForResponse() {
+    const chatDisplay = document.getElementById('chat-display');
+    
+    // Créer un observateur de mutations pour surveiller les changements dans le chat
+    const observer = new MutationObserver((mutations) => {
+      // Vérifier si de nouveaux messages ont été ajoutés
+      const hasNewMessages = mutations.some(mutation => 
+        mutation.type === 'childList' && mutation.addedNodes.length > 0
+      );
+      
+      if (hasNewMessages) {
+        // Désactiver le loader
+        const loader = document.getElementById('minified-loader');
+        if (loader) {
+          loader.classList.remove('active');
+        }
+        
+        // Réactiver le textarea et le bouton
+        const minifiedTextarea = document.getElementById('minified-message-input');
+        if (minifiedTextarea) {
+          minifiedTextarea.disabled = false;
+          minifiedTextarea.focus();
+          
+          // Réinitialiser la hauteur pour qu'elle s'adapte au contenu
+          minifiedTextarea.style.height = 'auto';
+          minifiedTextarea.style.height = Math.min(minifiedTextarea.scrollHeight, 100) + 'px';
+          if (minifiedTextarea.scrollHeight < 32) {
+            minifiedTextarea.style.height = '32px';
+          }
+        }
+        
+        const sendButton = document.getElementById('minified-send-button');
+        if (sendButton) {
+          sendButton.disabled = false;
+        }
+        
+        // Arrêter l'observation
+        observer.disconnect();
+      }
+    });
+    
+    // Configurer l'observateur pour surveiller les ajouts d'enfants
+    observer.observe(chatDisplay, { childList: true, subtree: true });
+    
+    // Timeout de sécurité pour désactiver le loader après 30 secondes si aucune réponse n'est reçue
+    setTimeout(() => {
+      observer.disconnect();
+      
+      // Désactiver le loader
+      const loader = document.getElementById('minified-loader');
+      if (loader) {
+        loader.classList.remove('active');
+      }
+      
+      // Réactiver le textarea et le bouton
+      const minifiedTextarea = document.getElementById('minified-message-input');
+      if (minifiedTextarea) {
+        minifiedTextarea.disabled = false;
+        
+        // Réinitialiser la hauteur pour qu'elle s'adapte au contenu
+        minifiedTextarea.style.height = 'auto';
+        minifiedTextarea.style.height = Math.min(minifiedTextarea.scrollHeight, 100) + 'px';
+        if (minifiedTextarea.scrollHeight < 32) {
+          minifiedTextarea.style.height = '32px';
+        }
+      }
+      
+      const sendButton = document.getElementById('minified-send-button');
+      if (sendButton) {
+        sendButton.disabled = false;
+      }
+    }, 30000);
   }
 }
