@@ -82,6 +82,28 @@ export class MediaInputManager {
     }
   }
 
+  async resizeImage(dataUrl) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Calculate new height maintaining aspect ratio
+        const ratio = img.height / img.width;
+        const targetWidth = 512;
+        const targetHeight = targetWidth * ratio;
+        
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+        resolve(canvas.toDataURL('image/jpeg', 0.9));
+      };
+      img.src = dataUrl;
+    });
+  }
+
   async handleImageUpload() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -90,7 +112,8 @@ export class MediaInputManager {
     input.onchange = async () => {
       const file = input.files[0];
       if (file) {
-        this.currentMediaData = await this.fileToBase64(file);
+        const originalData = await this.fileToBase64(file);
+        this.currentMediaData = await this.resizeImage(originalData);
         this.notifyMediaReady();
       }
     };
@@ -112,7 +135,8 @@ export class MediaInputManager {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bitmap, 0, 0);
       
-      this.currentMediaData = canvas.toDataURL('image/jpeg');
+      const originalData = canvas.toDataURL('image/jpeg', 1.0);
+      this.currentMediaData = await this.resizeImage(originalData);
       this.notifyMediaReady();
       
       track.stop();
@@ -135,7 +159,8 @@ export class MediaInputManager {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bitmap, 0, 0);
       
-      this.currentMediaData = canvas.toDataURL('image/jpeg');
+      const originalData = canvas.toDataURL('image/jpeg', 1.0);
+      this.currentMediaData = await this.resizeImage(originalData);
       this.notifyMediaReady();
       
       track.stop();
