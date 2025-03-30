@@ -44,7 +44,10 @@ export default class CanvasFunctions {
     //     img.width,
     //     img.height
     //   );
-    this.displayImagesGrid(this.images);
+    this.displayImagesGrid(this.images, {
+      columns: Math.ceil(this.images.length / 2),
+      spacing: 20,
+    });
     // });
     requestAnimationFrame(() => this.draw());
   }
