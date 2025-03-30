@@ -147,9 +147,27 @@ export class MediaInputManager {
 
   async handleWebcam() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const track = stream.getVideoTracks()[0];
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
+      });
       
+      // Create video element to properly initialize the stream
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.play();
+
+      // Wait for video to be ready
+      await new Promise(resolve => {
+        video.addEventListener('loadeddata', resolve);
+      });
+
+      // Give a small additional delay to ensure frame is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const track = stream.getVideoTracks()[0];
       const imageCapture = new ImageCapture(track);
       const bitmap = await imageCapture.grabFrame();
       
@@ -163,6 +181,9 @@ export class MediaInputManager {
       this.currentMediaData = await this.resizeImage(originalData);
       this.notifyMediaReady();
       
+      // Clean up
+      video.pause();
+      video.srcObject = null;
       track.stop();
     } catch (error) {
       console.error('Error accessing webcam:', error);
