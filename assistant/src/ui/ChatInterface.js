@@ -51,6 +51,12 @@ export class ChatInterface {
     const inputContainer = document.querySelector('.input-container');
     inputContainer.insertBefore(this.mediaManager.getMediaButton(), inputContainer.firstChild);
 
+    // Initialize new chat button
+    const newChatButton = document.querySelector('.new-chat-button');
+    if (newChatButton) {
+      newChatButton.addEventListener('click', () => this.startNewChat());
+    }
+
     // Affichage du dictionnaire de mots disponibles
     this.showDictionary();
 
@@ -260,6 +266,23 @@ export class ChatInterface {
     // Show a small preview or indicator that media is ready
     const mediaButton = this.mediaManager.getMediaButton();
     mediaButton.classList.add('has-media');
+  }
+
+  /**
+   * Starts a new chat session by clearing the chat display
+   */
+  startNewChat() {
+    if (this.chatDisplay) {
+      this.chatDisplay.innerHTML = '';
+    }
+    if (this.messageInput) {
+      this.messageInput.value = '';
+      this.messageInput.style.height = 'auto';
+    }
+    if (this.mediaManager) {
+      this.mediaManager.clearCurrentMedia();
+      this.mediaManager.getMediaButton().classList.remove('has-media');
+    }
   }
 
   /**
