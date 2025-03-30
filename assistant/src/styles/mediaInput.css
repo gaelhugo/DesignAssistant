@@ -1,0 +1,107 @@
+.media-input-button {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.3s, transform 0.2s;
+  color: var(--text-color);
+}
+
+.media-input-button:hover {
+  background-color: var(--hover-color);
+  transform: scale(1.05);
+}
+
+.media-input-button.has-media {
+  color: var(--accent-color);
+}
+
+.media-input-button.has-media svg {
+  filter: drop-shadow(0 0 2px var(--accent-color));
+}
+
+.media-options {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  margin-bottom: 8px;
+  min-width: 200px;
+  border: 1px solid var(--border-color);
+}
+
+.media-options.show {
+  display: block;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.media-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  color: var(--text-color);
+  font-family: var(--font-family);
+}
+
+.media-option:hover {
+  background-color: var(--hover-color);
+}
+
+.media-option svg {
+  width: 24px;
+  height: 24px;
+}
+
+.chat-media {
+  max-width: 300px;
+  max-height: 200px;
+  border-radius: 8px;
+  margin: 8px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Theme-specific styles */
+[data-theme="theme-light"] {
+  --hover-color: rgba(0, 0, 0, 0.05);
+  --border-color: #e0e0e0;
+}
+
+[data-theme="dark-theme"] {
+  --hover-color: rgba(255, 255, 255, 0.1);
+  --border-color: #404040;
+}
+
+[data-theme="blue-theme"] {
+  --hover-color: rgba(0, 114, 229, 0.1);
+  --border-color: #2196f3;
+}
+
+[data-theme="green-theme"] {
+  --hover-color: rgba(76, 175, 80, 0.1);
+  --border-color: #4caf50;
+}

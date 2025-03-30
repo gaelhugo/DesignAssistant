@@ -4,6 +4,7 @@
  * et l'interaction avec l'API LMStudio.
  */
 import MarkdownIt from "markdown-it";
+import { MediaInputManager } from "./MediaInputManager.js";
 
 export class ChatInterface {
   /**
@@ -18,6 +19,7 @@ export class ChatInterface {
     this.lmClient = lmClient; // Pour envoyer des messages à l'API
     this.dictManager = dictManager; // Pour gérer le dictionnaire de mots
     this.functionHandler = functionHandler; // Pour exécuter des fonctions
+    this.mediaManager = new MediaInputManager(this);
 
     // Initialisation du parser markdown pour formater les messages
     this.md = new MarkdownIt({
@@ -44,6 +46,10 @@ export class ChatInterface {
     this.chatDisplay = document.getElementById("chat-display");
     this.messageInput = document.getElementById("message-input");
     this.sendButton = document.getElementById("send-button");
+
+    // Add media button to input container
+    const inputContainer = document.querySelector('.input-container');
+    inputContainer.insertBefore(this.mediaManager.getMediaButton(), inputContainer.firstChild);
 
     // Affichage du dictionnaire de mots disponibles
     this.showDictionary();
@@ -247,6 +253,16 @@ export class ChatInterface {
   }
 
   /**
+   * Callback when media is captured
+   * @param {string} mediaData - Base64 encoded media data
+   */
+  onMediaCaptured(mediaData) {
+    // Show a small preview or indicator that media is ready
+    const mediaButton = this.mediaManager.getMediaButton();
+    mediaButton.classList.add('has-media');
+  }
+
+  /**
    * Envoie le message de l'utilisateur et affiche la réponse de l'assistant.
    * Cette fonction est appelée quand l'utilisateur clique sur Envoyer ou appuie sur Entrée.
    */
@@ -255,12 +271,25 @@ export class ChatInterface {
     const userMessage = this.messageInput.value.trim();
     if (!userMessage) return;
 
+    // Get any media data if available
+    const mediaData = this.mediaManager.getCurrentMediaData();
+
     // Ajouter le message de l'utilisateur à la conversation
     this.addMessageToChat("user", userMessage);
 
-    // Effacer le champ de saisie
+    // If there's media, add it to the chat
+    if (mediaData) {
+      const mediaElement = document.createElement('img');
+      mediaElement.src = mediaData;
+      mediaElement.className = 'chat-media';
+      this.chatDisplay.lastElementChild.appendChild(mediaElement);
+    }
+
+    // Effacer le champ de saisie et reset media
     this.messageInput.value = "";
     this.messageInput.style.height = "auto";
+    this.mediaManager.clearCurrentMedia();
+    this.mediaManager.getMediaButton().classList.remove('has-media');
 
     // Afficher l'animation de chargement
     this.showLoadingAnimation();
@@ -275,25 +304,32 @@ export class ChatInterface {
         .replace(/\s+/g, " ")
         .trim();
 
-      // Obtenir la réponse de l'assistant
-      const response = await this.lmClient.sendMessage(
-        systemPrompt,
-        formattedMessage
-      );
-
-      // Supprimer l'animation de chargement
-      this.hideLoadingAnimation();
+      // Get response from assistant
+      let response;
+      if (mediaData) {
+        response = await this.lmClient.sendMessageWithImage(
+          systemPrompt,
+          formattedMessage,
+          mediaData
+        );
+      } else {
+        response = await this.lmClient.sendMessage(
+          systemPrompt,
+          formattedMessage
+        );
+      }
 
       // Ajouter la réponse de l'assistant à la conversation
       this.addMessageToChat("assistant", response);
     } catch (error) {
-      // En cas d'erreur, supprimer l'animation de chargement
+      console.error("Erreur lors de l'envoi du message:", error);
+      this.addMessageToChat(
+        "assistant",
+        "Désolé, une erreur s'est produite lors du traitement de votre message."
+      );
+    } finally {
+      // Cacher l'animation de chargement
       this.hideLoadingAnimation();
-
-      // Afficher un message d'erreur
-      const errorMessage = `Erreur: ${error.message}`;
-      this.addMessageToChat("assistant", errorMessage);
-      console.error("Erreur lors de l'obtention de la réponse:", error);
     }
   }
 }
