@@ -16,6 +16,7 @@ export class ChatInterface {
     this.lmClient = lmClient;
     this.dictManager = dictManager;
     this.functionHandler = functionHandler;
+    this.USE_MEDIA = false;
     this.mediaManager = new SquareMediaInputManager(this);
 
     // Initialisation du parser markdown

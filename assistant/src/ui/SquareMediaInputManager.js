@@ -40,7 +40,13 @@ export class SquareMediaInputManager {
       </div>
     `;
 
-    this.setupEventListeners(mediaButton);
+    if (this.chatInterface.USE_MEDIA === false) {
+      mediaButton.style.opacity = "0.3";
+      mediaButton.style.cursor = "not-allowed";
+      mediaButton.style.pointerEvents = "none";
+    } else {
+      this.setupEventListeners(mediaButton);
+    }
     return mediaButton;
   }
 
