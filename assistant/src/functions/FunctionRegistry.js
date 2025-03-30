@@ -10,11 +10,12 @@ export class FunctionRegistry {
    *
    * @param {Object} functionHandler - Le gestionnaire de fonctions qui traitera les appels
    */
-  constructor(functionHandler, canvasManager) {
+  constructor(functionHandler, minifyManager) {
     this.functions = {};
     this.functionHandler = functionHandler;
     this.terminal = null;
-    this.canvasFunctions = canvasManager.canvasFunctions;
+    this.minifyManager = minifyManager;
+    this.canvasFunctions = minifyManager.canvasManager.canvasFunctions;
 
     // Définition des fonctions disponibles
     this.availableFunctions = {
@@ -247,9 +248,11 @@ export class FunctionRegistry {
             "dessiner dans le canvas"
           );
           console.log("args.mots", args.mots);
-          this.canvasFunctions.clear();
+          this.minifyManager.minimize();
           args.mots.forEach((mot) => {
-            this.canvasFunctions.addImage(mot + ".png");
+            this.minifyManager.canvasManager.canvasFunctions.addImage(
+              mot + ".png"
+            );
           });
           return "Dessiné dans le canvas";
         },

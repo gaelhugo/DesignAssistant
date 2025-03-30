@@ -110,10 +110,7 @@ function start() {
   minifyManager.initialize();
 
   // 4. Créer le registre de fonctions qui définit toutes les fonctions disponibles
-  const functionRegistry = new FunctionRegistry(
-    functionHandler,
-    minifyManager.canvasManager
-  );
+  const functionRegistry = new FunctionRegistry(functionHandler, minifyManager);
 
   // 5. Enregistrer toutes les fonctions définies dans le registre
   functionRegistry.registerAllFunctions();
