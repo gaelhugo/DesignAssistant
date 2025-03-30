@@ -1,7 +1,8 @@
 /**
- * Manages media input (image upload, screen sharing, webcam) for the chat interface
+ * Version of MediaInputManager that crops images to a square (1:1 ratio)
+ * and resizes them to 256x256 pixels.
  */
-export class MediaInputManager {
+export class SquareMediaInputManager {
   constructor(chatInterface) {
     this.chatInterface = chatInterface;
     this.currentMediaData = null;
@@ -20,13 +21,13 @@ export class MediaInputManager {
       <div class="media-options">
         <button class="media-option" data-type="upload">
           <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
-            <path d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>
+            <path d="M440-440ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm40-80h480L560-480 440-320l-80-120-120 160Zm-40 80v-560 560Z"/>
           </svg>
           Upload Image
         </button>
         <button class="media-option" data-type="screen">
           <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
-            <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0 0v-480 480Z"/>
+            <path d="M440-440ZM120-120q-33 0-56.5-23.5T40-200v-480q0-33 23.5-56.5T120-760h720q33 0 56.5 23.5T920-680v480q0 33-23.5 56.5T840-120H120Zm0-80h720v-480H120v480Zm0 0v-480 480Z"/>
           </svg>
           Share Screen
         </button>
@@ -67,7 +68,6 @@ export class MediaInputManager {
   }
 
   async handleMediaSelection(type) {
-    this.mediaType = type;
     this.currentMediaData = null;
 
     switch (type) {
@@ -83,22 +83,47 @@ export class MediaInputManager {
     }
   }
 
-  async resizeImage(dataUrl) {
+  async resizeAndCropImage(dataUrl) {
     return new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
-        // Calculate new height maintaining aspect ratio
-        const ratio = img.height / img.width;
-        const targetWidth = 256;
-        const targetHeight = targetWidth * ratio;
+        // Set target dimensions
+        const targetSize = 256;
+        canvas.width = targetSize;
+        canvas.height = targetSize;
 
-        canvas.width = targetWidth;
-        canvas.height = targetHeight;
+        // Calculate crop dimensions
+        let sourceX = 0;
+        let sourceY = 0;
+        let sourceWidth = img.width;
+        let sourceHeight = img.height;
 
-        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+        if (sourceWidth > sourceHeight) {
+          // Landscape image
+          sourceX = (sourceWidth - sourceHeight) / 2;
+          sourceWidth = sourceHeight;
+        } else if (sourceHeight > sourceWidth) {
+          // Portrait image
+          sourceY = (sourceHeight - sourceWidth) / 2;
+          sourceHeight = sourceWidth;
+        }
+
+        // Draw cropped and resized image
+        ctx.drawImage(
+          img,
+          sourceX,
+          sourceY,
+          sourceWidth,
+          sourceHeight,
+          0,
+          0,
+          targetSize,
+          targetSize
+        );
+
         resolve(canvas.toDataURL("image/jpeg", 0.9));
       };
       img.src = dataUrl;
@@ -114,7 +139,7 @@ export class MediaInputManager {
       const file = input.files[0];
       if (file) {
         const originalData = await this.fileToBase64(file);
-        this.currentMediaData = await this.resizeImage(originalData);
+        this.currentMediaData = await this.resizeAndCropImage(originalData);
         this.notifyMediaReady();
       }
     };
@@ -139,7 +164,7 @@ export class MediaInputManager {
       ctx.drawImage(bitmap, 0, 0);
 
       const originalData = canvas.toDataURL("image/jpeg", 1.0);
-      this.currentMediaData = await this.resizeImage(originalData);
+      this.currentMediaData = await this.resizeAndCropImage(originalData);
       this.notifyMediaReady();
 
       track.stop();
@@ -181,7 +206,7 @@ export class MediaInputManager {
       ctx.drawImage(bitmap, 0, 0);
 
       const originalData = canvas.toDataURL("image/jpeg", 1.0);
-      this.currentMediaData = await this.resizeImage(originalData);
+      this.currentMediaData = await this.resizeAndCropImage(originalData);
       this.notifyMediaReady();
 
       // Clean up

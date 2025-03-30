@@ -142,6 +142,7 @@ RÈGLES IMPORTANTES:
 7. NE PAS ajouter de formatage markdown.
 8. Renvoie UNIQUEMENT le JSON pur.
 9. Choisis la fonction la plus appropriée pour répondre à la demande de l'utilisateur.
+10. Si une image est fournie, analyse-la et choisis la fonction la plus appropriée pour répondre à la demande de l'utilisateur.
 
 ${examples}`;
 

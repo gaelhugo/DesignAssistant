@@ -1,78 +1,79 @@
 /**
  * Interface pour l'application de chat.
- * Cette classe gère l'interface utilisateur du chat, l'affichage des messages
- * et l'interaction avec l'API LMStudio.
  */
 import MarkdownIt from "markdown-it";
-import { MediaInputManager } from "./MediaInputManager.js";
+import { SquareMediaInputManager } from "./SquareMediaInputManager.js";
 
 export class ChatInterface {
   /**
    * Initialise l'interface de chat.
    *
-   * @param {Object} lmClient - Le client pour communiquer avec LMStudio
-   * @param {Object} dictManager - Le gestionnaire de dictionnaire de mots
+   * @param {Object} lmClient - Le client LMStudio
+   * @param {Object} dictManager - Le gestionnaire de dictionnaire
    * @param {Object} functionHandler - Le gestionnaire de fonctions (optionnel)
    */
   constructor(lmClient, dictManager, functionHandler = null) {
-    // Stockage des dépendances
-    this.lmClient = lmClient; // Pour envoyer des messages à l'API
-    this.dictManager = dictManager; // Pour gérer le dictionnaire de mots
-    this.functionHandler = functionHandler; // Pour exécuter des fonctions
-    this.mediaManager = new MediaInputManager(this);
+    this.lmClient = lmClient;
+    this.dictManager = dictManager;
+    this.functionHandler = functionHandler;
+    this.mediaManager = new SquareMediaInputManager(this);
 
-    // Initialisation du parser markdown pour formater les messages
+    // Initialisation du parser markdown
     this.md = new MarkdownIt({
-      html: false, // Désactive le HTML pour la sécurité
-      linkify: true, // Convertit les URLs en liens cliquables
-      typographer: true, // Active les améliorations typographiques
+      html: false,
+      linkify: true,
+      typographer: true,
     });
 
-    // Éléments du DOM (initialisés à null, seront définis dans initialize())
-    this.dictionaryDisplay = null; // Affichage du dictionnaire
-    this.chatDisplay = null; // Zone d'affichage des messages
-    this.messageInput = null; // Champ de saisie du message
-    this.sendButton = null; // Bouton d'envoi
-    this.loadingElement = null; // Élément d'animation de chargement
+    // Éléments du DOM
+    this.dictionaryDisplay = null;
+    this.chatDisplay = null;
+    this.messageInput = null;
+    this.sendButton = null;
+    this.loadingElement = null;
   }
 
   /**
-   * Initialise l'interface utilisateur en récupérant les éléments du DOM
-   * et en configurant les événements.
+   * Initialise l'interface utilisateur.
    */
   initialize() {
-    // Récupération des éléments du DOM par leur ID
+    // Récupération des éléments du DOM
     this.dictionaryDisplay = document.getElementById("dictionary-display");
     this.chatDisplay = document.getElementById("chat-display");
     this.messageInput = document.getElementById("message-input");
     this.sendButton = document.getElementById("send-button");
 
     // Add media button to input container
-    const inputContainer = document.querySelector('.input-container');
-    inputContainer.insertBefore(this.mediaManager.getMediaButton(), inputContainer.firstChild);
+    const inputContainer = document.querySelector(".input-container");
+    inputContainer.insertBefore(
+      this.mediaManager.getMediaButton(),
+      inputContainer.firstChild
+    );
 
     // Initialize new chat button
-    const newChatButton = document.querySelector('.new-chat-button');
+    const newChatButton = document.querySelector(".new-chat-button");
     if (newChatButton) {
-      newChatButton.addEventListener('click', () => this.startNewChat());
+      newChatButton.addEventListener("click", () => this.startNewChat());
     }
 
-    // Affichage du dictionnaire de mots disponibles
+    // Affichage du dictionnaire
     this.showDictionary();
 
-    // Configuration des événements (clic sur bouton, appui sur Entrée)
-    this.initEventListeners();
+    // Ajout des écouteurs d'événements
+    this.addEventListeners();
   }
 
   /**
-   * Initialise les gestionnaires d'événements pour l'interface de chat.
+   * Ajoute les écouteurs d'événements pour l'interface.
    */
-  initEventListeners() {
-    // Gestionnaire pour le bouton d'envoi
-    this.sendButton.addEventListener("click", () => this.sendMessage());
+  addEventListeners() {
+    // Envoi du message avec le bouton
+    this.sendButton.addEventListener("click", () => {
+      this.sendMessage();
+    });
 
-    // Gestionnaire pour la touche Entrée dans le champ de saisie
-    this.messageInput.addEventListener("keydown", (event) => {
+    // Envoi du message avec la touche Entrée
+    this.messageInput.addEventListener("keypress", (event) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         this.sendMessage();
@@ -88,34 +89,58 @@ export class ChatInterface {
   }
 
   /**
-   * Affiche la liste des mots du dictionnaire dans l'interface.
+   * Appelé lorsque des médias sont capturés.
+   *
+   * @param {string} mediaData - Les données des médias capturés
+   */
+  onMediaCaptured(mediaData) {
+    const mediaButton = this.mediaManager.getMediaButton();
+    mediaButton.classList.add("has-media");
+  }
+
+  /**
+   * Démarre un nouveau chat.
+   */
+  startNewChat() {
+    if (this.chatDisplay) {
+      this.chatDisplay.innerHTML = "";
+    }
+    if (this.messageInput) {
+      this.messageInput.value = "";
+      this.messageInput.style.height = "auto";
+    }
+    if (this.mediaManager) {
+      this.mediaManager.clearCurrentMedia();
+      this.mediaManager.getMediaButton().classList.remove("has-media");
+    }
+  }
+
+  /**
+   * Affiche le dictionnaire dans l'interface.
    */
   showDictionary() {
-    // Récupère la liste formatée des mots et l'affiche
     this.dictionaryDisplay.textContent =
       this.dictManager.getFormattedWordList();
   }
 
   /**
-   * Ajoute un message à la conversation.
-   * Gère différemment les messages de l'utilisateur et de l'assistant.
+   * Ajoute un message à la zone de conversation.
    *
    * @param {string} sender - L'expéditeur du message ('user' ou 'assistant')
    * @param {string} message - Le contenu du message
    */
   addMessageToChat(sender, message) {
-    // Créer l'élément de message
+    // Création du conteneur de message
     const messageElement = document.createElement("div");
     messageElement.classList.add("message");
 
-    // Ajout de la classe appropriée selon l'expéditeur
     if (sender === "user") {
       messageElement.classList.add("user-message");
     } else {
       messageElement.classList.add("assistant-message");
     }
 
-    // Ajouter le nom de l'expéditeur
+    // Ajout du nom de l'expéditeur
     const senderElement = document.createElement("div");
     senderElement.classList.add("message-sender");
     senderElement.textContent = sender === "user" ? "Vous" : "Assistant";
@@ -125,90 +150,60 @@ export class ChatInterface {
     const contentElement = document.createElement("div");
     contentElement.classList.add("message-content");
 
-    // Traitement spécial pour les messages de l'assistant (potentiellement JSON)
+    // Si c'est une réponse de l'assistant, vérifier si c'est du JSON
     if (sender === "assistant") {
       try {
-        // Essayer de traiter comme JSON
+        // Nettoyer la réponse pour extraire le JSON des backticks markdown
         const cleanedMessage = this.cleanJsonResponse(message);
+
+        // Essayer de parser le message comme JSON
         const jsonResponse = JSON.parse(cleanedMessage);
 
-        // Si on a un gestionnaire de fonctions, traiter l'appel de fonction
+        // Vérifier si on a un gestionnaire de fonctions et traiter l'appel de fonction
         if (this.functionHandler) {
           this.functionHandler.processResponse(jsonResponse);
         }
 
-        // Afficher uniquement les valeurs des arguments, sans le nom de fonction ni les clés
-        if (jsonResponse.name && jsonResponse.arguments) {
-          // C'est un appel de fonction
-          const args = jsonResponse.arguments;
-
-          // Créer une représentation textuelle simple des arguments (juste les valeurs)
-          let argsText = "";
-          if (Object.keys(args).length > 0) {
-            // Traiter chaque valeur pour ajouter des espaces après les virgules
-            const processedValues = Object.values(args).map((value) => {
-              // Si c'est une chaîne de caractères avec des virgules, ajouter des espaces
-              if (typeof value === "string") {
-                // Remplacer toutes les virgules par une virgule suivie d'un espace
-                return value.replace(/,(?!\s)/g, ", ");
-              }
-              return value;
-            });
-
-            // Joindre les valeurs avec des virgules et des espaces
-            argsText = processedValues
-              .join(", ")
-              .replace(/,(?!\s)/g, ",&nbsp;");
-          } else {
-            argsText = "<em>Aucun argument</em>";
-          }
-
-          contentElement.innerHTML = `<div class="function-result">${argsText}</div>`;
-        } else {
-          // Fallback pour les autres types de JSON
-          contentElement.innerHTML = `<pre>${JSON.stringify(
-            jsonResponse,
-            null,
-            2
-          )}</pre>`;
-        }
+        // Afficher le JSON formaté pour toutes les réponses
+        contentElement.innerHTML = `<pre>${JSON.stringify(
+          jsonResponse,
+          null,
+          2
+        )}</pre>`;
       } catch (e) {
-        // Si ce n'est pas du JSON valide, afficher comme texte normal avec markdown
+        // Si ce n'est pas du JSON, afficher le message avec markdown
         contentElement.innerHTML = this.md.render(message);
       }
     } else {
-      // Pour les messages utilisateur, afficher avec markdown
+      // Pour les messages utilisateur, afficher avec markdown de base
       contentElement.innerHTML = this.md.render(message);
     }
 
-    // Ajouter le contenu au message
     messageElement.appendChild(contentElement);
 
-    // Ajouter le message à la conversation
+    // Ajout du message à la conversation
     this.chatDisplay.appendChild(messageElement);
 
-    // Faire défiler vers le bas pour voir le nouveau message
+    // Défilement vers le bas pour voir le nouveau message
     this.chatDisplay.scrollTop = this.chatDisplay.scrollHeight;
   }
 
   /**
-   * Nettoie une réponse JSON qui pourrait être entourée de backticks markdown.
-   * Par exemple, si le modèle renvoie ```json { ... } ```, cette fonction extrait { ... }
+   * Nettoie une réponse potentiellement formatée en markdown pour extraire le JSON.
    *
    * @param {string} response - La réponse à nettoyer
    * @returns {string} - La réponse nettoyée
    */
   cleanJsonResponse(response) {
-    // Expression régulière pour trouver du JSON dans des blocs de code markdown
+    // Vérifier si la réponse est entourée de backticks (format markdown)
     const jsonRegex = /```(?:json)?\s*([\s\S]*?)```/;
     const match = response.match(jsonRegex);
 
     if (match && match[1]) {
-      // Si trouvé dans des backticks, retourner le contenu
       return match[1].trim();
     }
 
-    // Sinon, retourner la réponse telle quelle
+    // Si pas de backticks, retourner la réponse telle quelle
     return response.trim();
   }
 
@@ -246,6 +241,7 @@ export class ChatInterface {
 
     // Stocker une référence à l'élément pour pouvoir le supprimer plus tard
     this.loadingElement = loadingElement;
+    return loadingElement;
   }
 
   /**
@@ -259,100 +255,59 @@ export class ChatInterface {
   }
 
   /**
-   * Callback when media is captured
-   * @param {string} mediaData - Base64 encoded media data
-   */
-  onMediaCaptured(mediaData) {
-    // Show a small preview or indicator that media is ready
-    const mediaButton = this.mediaManager.getMediaButton();
-    mediaButton.classList.add('has-media');
-  }
-
-  /**
-   * Starts a new chat session by clearing the chat display
-   */
-  startNewChat() {
-    if (this.chatDisplay) {
-      this.chatDisplay.innerHTML = '';
-    }
-    if (this.messageInput) {
-      this.messageInput.value = '';
-      this.messageInput.style.height = 'auto';
-    }
-    if (this.mediaManager) {
-      this.mediaManager.clearCurrentMedia();
-      this.mediaManager.getMediaButton().classList.remove('has-media');
-    }
-  }
-
-  /**
-   * Envoie le message de l'utilisateur et affiche la réponse de l'assistant.
-   * Cette fonction est appelée quand l'utilisateur clique sur Envoyer ou appuie sur Entrée.
+   * Envoie le message de l'utilisateur et affiche la réponse.
    */
   async sendMessage() {
-    // Récupérer le message de l'utilisateur
     const userMessage = this.messageInput.value.trim();
-    if (!userMessage) return;
+
+    if (!userMessage) {
+      return;
+    }
 
     // Get any media data if available
     const mediaData = this.mediaManager.getCurrentMediaData();
 
-    // Ajouter le message de l'utilisateur à la conversation
+    // Add user message to chat
     this.addMessageToChat("user", userMessage);
 
     // If there's media, add it to the chat
     if (mediaData) {
-      const mediaElement = document.createElement('img');
+      const mediaElement = document.createElement("img");
       mediaElement.src = mediaData;
-      mediaElement.className = 'chat-media';
+      mediaElement.className = "chat-media";
       this.chatDisplay.lastElementChild.appendChild(mediaElement);
     }
 
-    // Effacer le champ de saisie et reset media
+    // Clear input and media
     this.messageInput.value = "";
     this.messageInput.style.height = "auto";
     this.mediaManager.clearCurrentMedia();
-    this.mediaManager.getMediaButton().classList.remove('has-media');
+    this.mediaManager.getMediaButton().classList.remove("has-media");
 
-    // Afficher l'animation de chargement
-    this.showLoadingAnimation();
+    // Show loading animation
+    const loadingElement = this.showLoadingAnimation();
 
     try {
-      // Obtenir le prompt système qui définit le comportement du modèle
       const systemPrompt = this.dictManager.getSystemPrompt();
-
-      // Formater le message pour ajouter des espaces après les virgules
-      const formattedMessage = userMessage
-        .replace(/,/g, ", ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      // Get response from assistant
       let response;
+
       if (mediaData) {
         response = await this.lmClient.sendMessageWithImage(
           systemPrompt,
-          formattedMessage,
+          userMessage,
           mediaData
         );
       } else {
-        response = await this.lmClient.sendMessage(
-          systemPrompt,
-          formattedMessage
-        );
+        response = await this.lmClient.sendMessage(systemPrompt, userMessage);
       }
 
-      // Ajouter la réponse de l'assistant à la conversation
+      // Hide loading animation and show response
+      this.hideLoadingAnimation();
       this.addMessageToChat("assistant", response);
     } catch (error) {
-      console.error("Erreur lors de l'envoi du message:", error);
-      this.addMessageToChat(
-        "assistant",
-        "Désolé, une erreur s'est produite lors du traitement de votre message."
-      );
-    } finally {
-      // Cacher l'animation de chargement
       this.hideLoadingAnimation();
+      const errorMessage = `Erreur: ${error.message}`;
+      this.addMessageToChat("assistant", errorMessage);
     }
   }
 }

@@ -48,62 +48,75 @@ export class FunctionRegistry {
         },
       },
 
-      compter_mots: {
+      jouer_morceau: {
         handler: (args) => {
-          // Cette fonction compte le nombre de mots dans un texte donné
-          // et affiche le résultat dans le terminal.
-          const texte = args.texte || "";
-          const mots = texte.split(/\s+/).filter((mot) => mot.length > 0);
-
-          // Compter les mots par longueur
-          const parLongueur = {};
-          mots.forEach((mot) => {
-            const longueur = mot.length;
-            parLongueur[longueur] = (parLongueur[longueur] || 0) + 1;
-          });
-
+          // Cette fonction appelle le serveur Flask pour jouer un morceau dans iTunes
           const result = {
-            success: true,
-            total: mots.length,
-            parLongueur: parLongueur,
+            pending: true,
+            message: "Chargement du morceau en cours...",
           };
+          this.terminal.showInTerminal("jouer_morceau", args, result);
 
-          // Afficher le résultat dans le terminal
-          this.terminal.showInTerminal("compter_mots", args, result);
+          // Appel au serveur Flask
+          fetch(
+            "http://localhost:5000/api/play-track?track=" +
+              encodeURIComponent(args.track)
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              const finalResult = {
+                success: data.success,
+                message: data.message,
+              };
+              this.terminal.showInTerminal("jouer_morceau", args, finalResult);
+              return finalResult;
+            })
+            .catch((error) => {
+              const errorResult = {
+                success: false,
+                message: `Erreur lors du chargement du morceau: ${error.message}`,
+              };
+              this.terminal.showInTerminal("jouer_morceau", args, errorResult);
+              return errorResult;
+            });
+
           return result;
         },
-        description: "Compte le nombre de mots dans un texte",
+        description:
+          "Joue un morceau dans l'application iTunes sur votre Mac. Actuellement uniquement disponible ces morceaux : 'Winter Sleep (Original Mix)' ou 'Party People' ou le nom de la track demandée expressément par l'utilisateur. Ne jamais retourner un json sans nom de morceau.",
         parameters: {
-          texte: {
+          track: {
             type: "string",
-            description: "Le texte dont on veut compter les mots",
+            description: "Le nom du morceau à jouer. ",
           },
         },
       },
 
-      alerte: {
+      dessiner_images: {
         handler: (args) => {
-          // Cette fonction affiche une alerte à l'utilisateur
-          // avec un message personnalisé.
-          const message = args.message || "Alerte!";
-
-          // Afficher l'alerte dans une boîte de dialogue
-          alert(message);
-
-          const result = {
-            success: true,
-            message: `Alerte affichée: ${message}`,
-          };
-
-          // Afficher le résultat dans le terminal
-          this.terminal.showInTerminal("alerte", args, result);
-          return result;
+          this.terminal.showInTerminal(
+            "dessiner_images",
+            args,
+            "dessiner dans le canvas"
+          );
+          console.log("args.mots", args.mots);
+          this.minifyManager.minimize();
+          this.canvasFunctions.clear();
+          args.mots.forEach((mot) => {
+            this.canvasFunctions.addImage(mot + ".png");
+          });
+          return "Dessiné dans le canvas";
         },
-        description: "Affiche une alerte à l'utilisateur",
+        description:
+          "Traite une réponse en utilisant strictement les mots du dictionnaire.",
         parameters: {
-          message: {
-            type: "string",
-            description: "Le message à afficher dans l'alerte",
+          mots: {
+            type: "array",
+            description:
+              "Liste des mots du dictionnaire à utiliser dans la réponse.",
+            items: {
+              type: "string",
+            },
           },
         },
       },
@@ -158,161 +171,6 @@ export class FunctionRegistry {
             description:
               "Le thème à appliquer. Valeurs possibles: theme-light, dark-theme, blue-theme, green-theme",
           },
-        },
-      },
-
-      ouvrir_itunes: {
-        handler: (args) => {
-          // Cette fonction appelle le serveur Flask pour ouvrir iTunes
-          const result = {
-            pending: true,
-            message: "Ouverture d'iTunes en cours...",
-          };
-          this.terminal.showInTerminal("ouvrir_itunes", args, result);
-
-          // Appel au serveur Flask
-          fetch("http://localhost:5000/api/open-itunes")
-            .then((response) => response.json())
-            .then((data) => {
-              const finalResult = {
-                success: data.success,
-                message: data.message,
-              };
-              this.terminal.showInTerminal("ouvrir_itunes", args, finalResult);
-              return finalResult;
-            })
-            .catch((error) => {
-              const errorResult = {
-                success: false,
-                message: `Erreur lors de l'ouverture d'iTunes: ${error.message}`,
-              };
-              this.terminal.showInTerminal("ouvrir_itunes", args, errorResult);
-              return errorResult;
-            });
-
-          return result;
-        },
-        description: "Ouvre l'application iTunes sur votre Mac",
-        parameters: {},
-      },
-
-      jouer_morceau: {
-        handler: (args) => {
-          // Cette fonction appelle le serveur Flask pour jouer un morceau dans iTunes
-          const result = {
-            pending: true,
-            message: "Chargement du morceau en cours...",
-          };
-          this.terminal.showInTerminal("jouer_morceau", args, result);
-
-          // Appel au serveur Flask
-          fetch(
-            "http://localhost:5000/api/play-track?track=" +
-              encodeURIComponent(args.track)
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              const finalResult = {
-                success: data.success,
-                message: data.message,
-              };
-              this.terminal.showInTerminal("jouer_morceau", args, finalResult);
-              return finalResult;
-            })
-            .catch((error) => {
-              const errorResult = {
-                success: false,
-                message: `Erreur lors du chargement du morceau: ${error.message}`,
-              };
-              this.terminal.showInTerminal("jouer_morceau", args, errorResult);
-              return errorResult;
-            });
-
-          return result;
-        },
-        description:
-          "Joue un morceau dans l'application iTunes sur votre Mac. Actuellement uniquement disponible ces morceaux : 'Winter Sleep (Original Mix)' ou 'Party People' ou le nom de la track demandée expressément par l'utilisateur. Ne jamais retourner un json sans nom de morceau.",
-        parameters: {
-          track: {
-            type: "string",
-            description: "Le nom du morceau à jouer. ",
-          },
-        },
-      },
-
-      dessiner_images: {
-        handler: (args) => {
-          this.terminal.showInTerminal(
-            "dessiner_images",
-            args,
-            "dessiner dans le canvas"
-          );
-          console.log("args.mots", args.mots);
-          this.minifyManager.minimize();
-          args.mots.forEach((mot) => {
-            this.minifyManager.canvasManager.canvasFunctions.addImage(
-              mot + ".png"
-            );
-          });
-          return "Dessiné dans le canvas";
-        },
-        description:
-          "Traite une réponse en utilisant strictement les mots du dictionnaire.",
-        parameters: {
-          mots: {
-            type: "array",
-            description:
-              "Liste des mots du dictionnaire à utiliser dans la réponse.",
-            items: {
-              type: "string",
-            },
-          },
-        },
-      },
-
-      ouvrir_youtube: {
-        description:
-          "Ouvre YouTube dans le navigateur Brave et recherche une vidéo spécifique.",
-        parameters: {
-          query: {
-            type: "string",
-            description:
-              "Le terme de recherche pour trouver une vidéo sur YouTube.",
-          },
-        },
-        handler: (args) => {
-          // Récupérer le terme de recherche
-          const query = args.query;
-
-          // Appeler l'API Flask pour ouvrir YouTube dans Brave
-          fetch(
-            `http://localhost:5000/api/open-youtube?query=${encodeURIComponent(
-              query
-            )}`
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              if (data.success) {
-                this.terminal.showInTerminal(
-                  "YouTube ouvert dans Brave avec la recherche",
-                  args,
-                  query
-                );
-              } else {
-                this.terminal.showInTerminal(
-                  "Erreur lors de l'ouverture de YouTube",
-                  args,
-                  data.message
-                );
-              }
-            })
-            .catch((error) => {
-              this.terminal.showInTerminal(
-                "Erreur de connexion au serveur ",
-                args,
-                error.message
-              );
-            });
         },
       },
     };

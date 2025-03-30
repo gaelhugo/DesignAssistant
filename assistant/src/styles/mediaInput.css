@@ -74,6 +74,45 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.media-preview-container {
+  position: relative;
+  display: inline-block;
+  margin: 0 8px;
+  vertical-align: middle;
+}
+
+.media-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+.media-preview-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-background);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.media-preview-remove:hover {
+  background: var(--hover-color);
+  transform: scale(1.1);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

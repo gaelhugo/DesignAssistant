@@ -182,9 +182,9 @@ export class MinifyManager {
       terminalContainer && !terminalContainer.classList.contains("hidden");
 
     // Afficher le canvas plein écran (sauf si le terminal est visible)
-    if (!isTerminalVisible) {
-      this.canvasManager.show();
-    }
+    // if (!isTerminalVisible) {
+    this.canvasManager.show();
+    // }
 
     // Afficher le chat minimisé
     if (this.minifiedChat) {

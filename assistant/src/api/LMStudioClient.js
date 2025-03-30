@@ -42,6 +42,7 @@ export class LMStudioClient {
           )}`;
 
       // Prepare the API payload
+      // content: `Quelle serait la meilleure réponse possible pour définir cette image en n'utilisant uniquement une combinaison de mots du dictionnaire suivant : ${systemPrompt} ? Pas d'introduction. Pas conclusion. Just la liste de mots au format json.`,
       const payload = {
         model: this.model,
         messages: [
@@ -67,6 +68,8 @@ export class LMStudioClient {
         max_tokens: this.maxTokens,
         stream: this.stream,
       };
+
+      console.log(payload);
 
       // Send request to the API
       const response = await fetch(this.url, {
