@@ -4,7 +4,7 @@
 export class JsonDictionaryManager {
   /**
    * Initialise le gestionnaire de dictionnaire JSON.
-   * 
+   *
    * @param {string[]} words - Liste des mots autorisés
    */
   constructor(words) {
@@ -14,18 +14,24 @@ export class JsonDictionaryManager {
 
   /**
    * Enregistre une nouvelle fonction disponible pour le modèle.
-   * 
+   *
    * @param {string} name - Nom de la fonction
    * @param {string} description - Description de la fonction
    * @param {Object} parameters - Paramètres de la fonction avec leurs types et descriptions
    */
   registerFunction(name, description, parameters) {
     // Vérifier si la fonction existe déjà
-    const existingIndex = this.registeredFunctions.findIndex(f => f.name === name);
-    
+    const existingIndex = this.registeredFunctions.findIndex(
+      (f) => f.name === name
+    );
+
     if (existingIndex !== -1) {
       // Mettre à jour la fonction existante
-      this.registeredFunctions[existingIndex] = { name, description, parameters };
+      this.registeredFunctions[existingIndex] = {
+        name,
+        description,
+        parameters,
+      };
     } else {
       // Ajouter la nouvelle fonction
       this.registeredFunctions.push({ name, description, parameters });
@@ -34,53 +40,53 @@ export class JsonDictionaryManager {
 
   /**
    * Génère la documentation des fonctions disponibles pour le modèle.
-   * 
+   *
    * @returns {string} - Documentation des fonctions au format texte
    */
   generateFunctionDocs() {
     let docs = "Fonctions disponibles:\n\n";
-    
+
     this.registeredFunctions.forEach((func, index) => {
       docs += `${index + 1}. ${func.name}\n`;
       docs += `   Description: ${func.description}\n`;
       docs += `   Paramètres:\n`;
-      
+
       for (const [paramName, paramInfo] of Object.entries(func.parameters)) {
         const required = paramInfo.required ? " (obligatoire)" : " (optionnel)";
         docs += `   - ${paramName} (${paramInfo.type})${required}: ${paramInfo.description}\n`;
       }
-      
+
       docs += "\n";
     });
-    
+
     return docs;
   }
 
   /**
    * Génère des exemples de réponses pour les fonctions disponibles.
-   * 
+   *
    * @returns {string} - Exemples de réponses au format texte
    */
   generateExamples() {
     let examples = "Exemples de réponses correctes:\n\n";
-    
-    this.registeredFunctions.forEach(func => {
+
+    this.registeredFunctions.forEach((func) => {
       const example = this.generateExampleForFunction(func);
       examples += `Pour ${func.name}:\n${example}\n\n`;
     });
-    
+
     return examples;
   }
 
   /**
    * Génère un exemple de réponse pour une fonction spécifique.
-   * 
+   *
    * @param {Object} func - Définition de la fonction
    * @returns {string} - Exemple de réponse JSON
    */
   generateExampleForFunction(func) {
     const args = {};
-    
+
     for (const [paramName, paramInfo] of Object.entries(func.parameters)) {
       if (paramInfo.type === "array") {
         if (paramName === "mots") {
@@ -99,26 +105,26 @@ export class JsonDictionaryManager {
         args[paramName] = { cle: "valeur" };
       }
     }
-    
+
     const example = {
       name: func.name,
-      arguments: args
+      arguments: args,
     };
-    
+
     return JSON.stringify(example);
   }
 
   /**
    * Génère le prompt système qui explique les contraintes du dictionnaire
    * et le format JSON attendu.
-   * 
+   *
    * @returns {string} - Le prompt système
    */
   getSystemPrompt() {
     const wordsStr = this.words.join(", ");
     const functionDocs = this.generateFunctionDocs();
     const examples = this.generateExamples();
-    
+
     const prompt = `Tu es un assistant utile avec la capacité de répondre avec des appels de fonction.
 Tu dois répondre STRICTEMENT en utilisant UNIQUEMENT les mots du dictionnaire suivant:
 ${wordsStr}
@@ -144,7 +150,7 @@ ${examples}`;
 
   /**
    * Récupère la liste des mots du dictionnaire.
-   * 
+   *
    * @returns {string[]} - Liste des mots du dictionnaire
    */
   getWords() {
@@ -153,10 +159,19 @@ ${examples}`;
 
   /**
    * Formate la liste des mots pour l'affichage.
-   * 
+   *
    * @returns {string} - Chaîne formatée des mots du dictionnaire
    */
   getFormattedWordList() {
     return this.words.join(", ");
+  }
+
+  /**
+   * Met à jour la liste des mots du dictionnaire.
+   *
+   * @param {Array<string>} words - Liste des mots autorisés
+   */
+  setWords(words) {
+    this.words = words;
   }
 }

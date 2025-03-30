@@ -1,0 +1,14 @@
+ .dictionary-display.drag-active {
+     border: 2px dashed #666;
+     background-color: rgba(0, 0, 0, 0.1);
+ }
+
+ .dictionary-display .drop-text {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%);
+     font-size: 14px;
+     color: #666;
+     pointer-events: none;
+ }

@@ -6,7 +6,7 @@
 export class DictionaryManager {
   /**
    * Initialise le gestionnaire de dictionnaire.
-   * 
+   *
    * @param {Array<string>} allowedWords - Liste des mots autorisés
    */
   constructor(allowedWords = []) {
@@ -16,13 +16,13 @@ export class DictionaryManager {
 
   /**
    * Génère le prompt système qui explique les contraintes du dictionnaire.
-   * 
+   *
    * @returns {string} - Le prompt système
    */
   getSystemPrompt() {
     // Construire le prompt avec les instructions et la liste des mots
     const wordsStr = this.allowedWords.join(", ");
-    
+
     const prompt = `Tu dois répondre STRICTEMENT en utilisant UNIQUEMENT les mots du dictionnaire suivant:
 ${wordsStr}
 
@@ -41,7 +41,7 @@ Exemple de réponse correcte: "Arbre Forêt Vent Feuille"`;
 
   /**
    * Récupère la liste des mots du dictionnaire.
-   * 
+   *
    * @returns {Array<string>} - Liste des mots du dictionnaire
    */
   getWords() {
@@ -51,10 +51,19 @@ Exemple de réponse correcte: "Arbre Forêt Vent Feuille"`;
   /**
    * Formate la liste des mots pour l'affichage.
    * Les mots sont séparés par des virgules.
-   * 
+   *
    * @returns {string} - Chaîne formatée des mots du dictionnaire
    */
   getFormattedWordList() {
     return this.allowedWords.join(", ");
+  }
+
+  /**
+   * Met à jour la liste des mots du dictionnaire.
+   *
+   * @param {Array<string>} words - Liste des mots autorisés
+   */
+  setWords(words) {
+    this.allowedWords = words;
   }
 }

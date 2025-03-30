@@ -3,6 +3,7 @@
  * Ce fichier initialise tous les composants et démarre l'application.
  */
 import "./styles/style.css";
+import "./styles/dragDrop.css";
 import { ChatInterface } from "./ui/ChatInterface.js";
 import { FunctionCallHandler } from "./functions/FunctionCallHandler.js";
 import { FunctionRegistry } from "./functions/FunctionRegistry.js";
@@ -13,6 +14,7 @@ import { MinifyManager } from "./minify/MinifyManager.js";
 import { TerminalInterface } from "./ui/TerminalInterface.js";
 import { ThemeSelector } from "./ui/ThemeSelector.js";
 import { ModeSelector } from "./ui/ModeSelector.js";
+import { DragAndDropManager } from "./ui/DragAndDropManager.js";
 
 // Attendre que le DOM soit complètement chargé avant d'initialiser l'application
 // document.addEventListener("DOMContentLoaded", () => {
@@ -118,7 +120,9 @@ function start() {
   // 6. Configurer le terminal dans le registre de fonctions
   functionRegistry.initializeTerminal(terminal);
 
-  // });
+  // Initialize drag and drop for dictionary display
+  const dictionaryDisplay = document.getElementById("dictionary-display");
+  new DragAndDropManager(dictionaryDisplay, dictManager);
 }
 
 window.addEventListener("DOMContentLoaded", () => {

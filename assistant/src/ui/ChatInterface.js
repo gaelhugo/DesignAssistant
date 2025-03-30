@@ -144,7 +144,9 @@ export class ChatInterface {
             });
 
             // Joindre les valeurs avec des virgules et des espaces
-            argsText = processedValues.join(", ");
+            argsText = processedValues
+              .join(", ")
+              .replace(/,(?!\s)/g, ",&nbsp;");
           } else {
             argsText = "<em>Aucun argument</em>";
           }
