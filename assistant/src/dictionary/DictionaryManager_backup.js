@@ -23,7 +23,18 @@ export class DictionaryManager {
     // Construire le prompt avec les instructions et la liste des mots
     const wordsStr = this.allowedWords.join(", ");
 
-    const prompt = `Tu es un assistant utile. Tu travailles avec des étudiants en première année de design interactif. Tu réponds simplement aux questions en étant pédagogue. Si une image est fournie, la tenir en compte pour répondre. `;
+    const prompt = `Tu dois répondre STRICTEMENT en utilisant UNIQUEMENT les mots du dictionnaire suivant:
+${wordsStr}
+
+RÈGLES IMPORTANTES:
+1. Tu ne peux utiliser QUE les mots de ce dictionnaire, sans AUCUNE exception.
+2. Tu peux utiliser les mots plusieurs fois si nécessaire.
+3. Tu dois choisir les mots qui répondent le plus précisément à la question.
+4. N'utilise pas de ponctuation entre les mots.
+5. N'ajoute pas d'explications ou de commentaires.
+6. Réponds de manière concise.
+
+Exemple de réponse correcte: "Arbre Forêt Vent Feuille"`;
 
     return prompt;
   }
