@@ -115,20 +115,20 @@ export class SimpleGame {
 
     // First section - simple jumps with increasing height
     this.createGameObject(250, 500, 150, 16, "platform");
-    this.createGameObject(450, 450, 150, 16, "platform");
+    const platform1 = this.createGameObject(450, 450, 150, 16, "platform");
     this.createGameObject(650, 450, 150, 16, "platform");
-    this.createGameObject(850, 400, 150, 16, "platform");
+    const platform2 = this.createGameObject(850, 400, 150, 16, "platform");
     this.createGameObject(1050, 400, 150, 16, "platform");
 
     // Second section - platforms at consistent heights
     this.createGameObject(1300, 450, 150, 16, "platform");
-    this.createGameObject(1500, 450, 150, 16, "platform");
+    const platform3 = this.createGameObject(1500, 450, 150, 16, "platform");
     this.createGameObject(1700, 400, 150, 16, "platform");
-    this.createGameObject(1900, 400, 150, 16, "platform");
+    const platform4 = this.createGameObject(1900, 400, 150, 16, "platform");
     this.createGameObject(2100, 450, 150, 16, "platform");
-    this.createGameObject(2300, 450, 150, 16, "platform");
+    const platform5 = this.createGameObject(2300, 450, 150, 16, "platform");
     this.createGameObject(2500, 400, 150, 16, "platform");
-    this.createGameObject(2700, 400, 150, 16, "platform");
+    const platform6 = this.createGameObject(2700, 400, 150, 16, "platform");
 
     // Add just a few floating platforms for bonuses (not too many)
     this.createGameObject(600, 300, 100, 16, "platform");
@@ -325,8 +325,9 @@ export class SimpleGame {
       );
       platforms.push(platform);
 
-      // Add an enemy on some platforms (30% chance)
-      if (Math.random() < 0.3) {
+      // Add an enemy on some platforms (30% chance), but only if the platform is large enough
+      // Minimum width for an enemy platform is 80px (enemy width + some space to move)
+      if (Math.random() < 0.3 && platformWidth >= 80) {
         const enemy = this.createGameObject(
           lastPlatformX + platformWidth / 2 - 16,
           height - 32,
@@ -378,7 +379,7 @@ export class SimpleGame {
     // Add a few more enemies on the ground
     for (let i = 0; i < 3; i++) {
       // Find a suitable platform to place the enemy on
-      const availablePlatforms = platforms.filter((p) => p.y === 550); // Ground platforms
+      const availablePlatforms = platforms.filter((p) => p.y === 550 && p.width >= 80); // Ground platforms with enough width
 
       if (availablePlatforms.length > 0) {
         // Choose a random platform from available ones

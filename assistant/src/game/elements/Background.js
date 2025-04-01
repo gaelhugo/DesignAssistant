@@ -14,8 +14,9 @@ export class Background {
     this.hillTexture = '/src/assets/images/buisson.png';
     this.cloudTexture = '/src/assets/images/nuage.png';
     
-    // Spacing for mountains to prevent overlaps
-    this.mountainSpacing = 300; // Increased spacing between mountains
+    // Mountain properties
+    this.mountainHeight = 250; // Height in pixels
+    this.mountainSpacing = 375; // Spacing proportional to height (1.5x the height)
   }
 
   /**
@@ -26,7 +27,7 @@ export class Background {
     this.farBackground = document.createElement("div");
     this.farBackground.style.position = "absolute";
     this.farBackground.style.width = `${this.levelWidth}px`;
-    this.farBackground.style.height = "200px";
+    this.farBackground.style.height = `${this.mountainHeight}px`; // Use the mountain height
     this.farBackground.style.bottom = "0";
     this.farBackground.style.left = "0";
     this.farBackground.style.zIndex = "1";
@@ -66,7 +67,7 @@ export class Background {
   populateBackground(startX, endX) {
     const width = endX - startX;
     
-    // Add mountains to far background with fixed spacing
+    // Add mountains to far background with spacing proportional to their size
     for (let i = 0; i < width / this.mountainSpacing; i++) {
       this.createMountain(startX + i * this.mountainSpacing);
     }
@@ -90,12 +91,11 @@ export class Background {
     const mountain = document.createElement("img");
     mountain.src = this.mountainTexture;
     mountain.style.position = "absolute";
-    mountain.style.height = "200px"; // Fixed height for consistency
+    mountain.style.height = `${this.mountainHeight}px`; // Use the mountain height property
     mountain.style.bottom = "0";
     mountain.style.left = `${x}px`;
     mountain.style.opacity = "0.8";
     
-    // No need for onload adjustment which was causing the overlap issues
     this.farBackground.appendChild(mountain);
     return mountain;
   }
