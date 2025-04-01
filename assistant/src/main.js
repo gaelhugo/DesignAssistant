@@ -62,7 +62,7 @@ function start() {
 
   // Configuration de l'API LMStudio
   const lmUrl = "http://localhost:1234/v1/chat/completions";
-  const modelName = "gemma-3-4b-it";
+  const modelName = "gemma-3-27b-it";
 
   // ===== INITIALISATION DES COMPOSANTS =====
 
