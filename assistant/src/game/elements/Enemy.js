@@ -1,7 +1,7 @@
 import { GameObject } from './GameObject.js';
 
 /**
- * Enemy class representing game enemies
+ * Classe Enemy représentant les ennemis du jeu
  */
 export class Enemy extends GameObject {
   constructor(x, y, width, height) {
@@ -10,7 +10,7 @@ export class Enemy extends GameObject {
   }
 
   /**
-   * Create DOM element for the enemy
+   * Crée l'élément DOM pour l'ennemi
    */
   createDOMElement() {
     const element = super.createDOMElement();
@@ -20,8 +20,8 @@ export class Enemy extends GameObject {
   }
 
   /**
-   * Update the enemy's direction and flip the sprite accordingly
-   * @param {number} direction - Direction (1 for right, -1 for left)
+   * Met à jour la direction de l'ennemi et retourne le sprite en conséquence
+   * @param {number} direction - Direction (1 pour droite, -1 pour gauche)
    */
   updateDirection(direction) {
     this.direction = direction;

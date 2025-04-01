@@ -1,7 +1,7 @@
 import { GameObject } from './GameObject.js';
 
 /**
- * Bonus class representing collectible bonuses
+ * Classe Bonus représentant les bonus collectables
  */
 export class Bonus extends GameObject {
   constructor(x, y, width, height) {
@@ -10,7 +10,7 @@ export class Bonus extends GameObject {
   }
 
   /**
-   * Create DOM element for the bonus
+   * Crée l'élément DOM pour le bonus
    */
   createDOMElement() {
     const element = super.createDOMElement();

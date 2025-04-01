@@ -1,7 +1,7 @@
 import { GameObject } from './GameObject.js';
 
 /**
- * Player class representing the player character
+ * Classe Player représentant le personnage du joueur
  */
 export class Player extends GameObject {
   constructor(x, y, width, height) {
@@ -10,7 +10,7 @@ export class Player extends GameObject {
   }
 
   /**
-   * Create DOM element for the player
+   * Crée l'élément DOM pour le joueur
    */
   createDOMElement() {
     const element = super.createDOMElement();
@@ -20,8 +20,8 @@ export class Player extends GameObject {
   }
 
   /**
-   * Update the player's direction and flip the sprite accordingly
-   * @param {number} direction - Direction (1 for right, -1 for left)
+   * Met à jour la direction du joueur et retourne le sprite en conséquence
+   * @param {number} direction - Direction (1 pour droite, -1 pour gauche)
    */
   updateDirection(direction) {
     this.direction = direction;

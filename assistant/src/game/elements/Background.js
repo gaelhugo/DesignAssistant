@@ -1,5 +1,5 @@
 /**
- * Background class for managing parallax backgrounds
+ * Classe Background pour gérer les arrière-plans parallaxes
  */
 export class Background {
   constructor(levelContainer, levelWidth) {
@@ -9,30 +9,30 @@ export class Background {
     this.midBackground = null;
     this.nearBackground = null;
     
-    // Default textures
+    // Textures par défaut
     this.mountainTexture = '/src/assets/images/mountains.png';
     this.hillTexture = '/src/assets/images/buisson.png';
     this.cloudTexture = '/src/assets/images/nuage.png';
     
-    // Mountain properties
-    this.mountainHeight = 250; // Height in pixels
-    this.mountainSpacing = 375; // Spacing proportional to height (1.5x the height)
+    // Propriétés des montagnes
+    this.mountainHeight = 250; // Hauteur en pixels
+    this.mountainSpacing = 375; // Espacement proportionnel à la hauteur (1.5x la hauteur)
   }
 
   /**
-   * Create the parallax background layers
+   * Crée les couches d'arrière-plan parallaxes
    */
   createBackground() {
-    // Create far background (mountains)
+    // Crée l'arrière-plan lointain (montagnes)
     this.farBackground = document.createElement("div");
     this.farBackground.style.position = "absolute";
     this.farBackground.style.width = `${this.levelWidth}px`;
-    this.farBackground.style.height = `${this.mountainHeight}px`; // Use the mountain height
+    this.farBackground.style.height = `${this.mountainHeight}px`; // Utilise la hauteur des montagnes
     this.farBackground.style.bottom = "0";
     this.farBackground.style.left = "0";
     this.farBackground.style.zIndex = "1";
 
-    // Create mid background (hills)
+    // Crée l'arrière-plan moyen (collines)
     this.midBackground = document.createElement("div");
     this.midBackground.style.position = "absolute";
     this.midBackground.style.width = `${this.levelWidth}px`;
@@ -41,7 +41,7 @@ export class Background {
     this.midBackground.style.left = "0";
     this.midBackground.style.zIndex = "2";
 
-    // Create near background (clouds)
+    // Crée l'arrière-plan proche (nuages)
     this.nearBackground = document.createElement("div");
     this.nearBackground.style.position = "absolute";
     this.nearBackground.style.width = `${this.levelWidth}px`;
@@ -50,48 +50,48 @@ export class Background {
     this.nearBackground.style.left = "0";
     this.nearBackground.style.zIndex = "3";
 
-    // Add elements to the backgrounds
+    // Ajoute des éléments aux arrière-plans
     this.populateBackground(0, this.levelWidth);
 
-    // Add backgrounds to level container
+    // Ajoute les arrière-plans au conteneur de niveau
     this.levelContainer.appendChild(this.farBackground);
     this.levelContainer.appendChild(this.midBackground);
     this.levelContainer.appendChild(this.nearBackground);
   }
 
   /**
-   * Populate the background with elements
-   * @param {number} startX - Starting X position
-   * @param {number} endX - Ending X position
+   * Peuple l'arrière-plan avec des éléments
+   * @param {number} startX - Position X de départ
+   * @param {number} endX - Position X de fin
    */
   populateBackground(startX, endX) {
     const width = endX - startX;
     
-    // Add mountains to far background with spacing proportional to their size
+    // Ajoute des montagnes à l'arrière-plan lointain avec un espacement proportionnel à leur taille
     for (let i = 0; i < width / this.mountainSpacing; i++) {
       this.createMountain(startX + i * this.mountainSpacing);
     }
 
-    // Add hills to mid background
+    // Ajoute des collines à l'arrière-plan moyen
     for (let i = 0; i < width / 100; i++) {
       this.createHill(startX + i * 80);
     }
 
-    // Add clouds to near background
+    // Ajoute des nuages à l'arrière-plan proche
     for (let i = 0; i < width / 200; i++) {
       this.createCloud(startX + i * 200 + Math.random() * 100);
     }
   }
 
   /**
-   * Create a mountain element
-   * @param {number} x - X position
+   * Crée un élément montagne
+   * @param {number} x - Position X
    */
   createMountain(x) {
     const mountain = document.createElement("img");
     mountain.src = this.mountainTexture;
     mountain.style.position = "absolute";
-    mountain.style.height = `${this.mountainHeight}px`; // Use the mountain height property
+    mountain.style.height = `${this.mountainHeight}px`; // Utilise la propriété de hauteur des montagnes
     mountain.style.bottom = "0";
     mountain.style.left = `${x}px`;
     mountain.style.opacity = "0.8";
@@ -101,8 +101,8 @@ export class Background {
   }
 
   /**
-   * Create a hill element
-   * @param {number} x - X position
+   * Crée un élément colline
+   * @param {number} x - Position X
    */
   createHill(x) {
     const hill = document.createElement("img");
@@ -118,8 +118,8 @@ export class Background {
   }
 
   /**
-   * Create a cloud element
-   * @param {number} x - X position
+   * Crée un élément nuage
+   * @param {number} x - Position X
    */
   createCloud(x) {
     const cloud = document.createElement("img");
@@ -135,41 +135,41 @@ export class Background {
   }
 
   /**
-   * Extend the background for a new chunk
-   * @param {number} startX - Starting X position
-   * @param {number} endX - Ending X position
+   * Étend l'arrière-plan pour un nouveau segment
+   * @param {number} startX - Position X de départ
+   * @param {number} endX - Position X de fin
    */
   extendBackground(startX, endX) {
     this.populateBackground(startX, endX);
     this.levelWidth = endX;
     
-    // Update background widths
+    // Met à jour les largeurs des arrière-plans
     this.farBackground.style.width = `${this.levelWidth}px`;
     this.midBackground.style.width = `${this.levelWidth}px`;
     this.nearBackground.style.width = `${this.levelWidth}px`;
   }
 
   /**
-   * Update the camera position for parallax effect
-   * @param {number} cameraX - Camera X position
+   * Met à jour la position de la caméra pour l'effet parallaxe
+   * @param {number} cameraX - Position X de la caméra
    */
   updateCamera(cameraX) {
-    // Apply parallax effect to background layers
+    // Applique l'effet parallaxe aux couches d'arrière-plan
     if (this.farBackground && this.midBackground && this.nearBackground) {
-      // Far background (mountains) - slowest parallax
+      // Arrière-plan lointain (montagnes) - parallaxe la plus lente
       this.farBackground.style.transform = `translateX(${cameraX * 0.2}px)`;
 
-      // Mid background (hills) - medium parallax
+      // Arrière-plan moyen (collines) - parallaxe moyenne
       this.midBackground.style.transform = `translateX(${cameraX * 0.5}px)`;
 
-      // Near background (clouds) - fastest parallax
+      // Arrière-plan proche (nuages) - parallaxe la plus rapide
       this.nearBackground.style.transform = `translateX(${cameraX * 0.8}px)`;
     }
   }
 
   /**
-   * Update the texture for mountains
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture des montagnes
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateMountainTexture(imagePath) {
     this.mountainTexture = imagePath;
@@ -180,8 +180,8 @@ export class Background {
   }
 
   /**
-   * Update the texture for hills
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture des collines
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateHillTexture(imagePath) {
     this.hillTexture = imagePath;
@@ -192,8 +192,8 @@ export class Background {
   }
 
   /**
-   * Update the texture for clouds
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture des nuages
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateCloudTexture(imagePath) {
     this.cloudTexture = imagePath;

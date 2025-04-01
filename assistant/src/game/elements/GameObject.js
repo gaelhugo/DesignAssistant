@@ -1,5 +1,5 @@
 /**
- * Base GameObject class for all game elements
+ * Classe de base GameObject pour tous les éléments du jeu
  */
 export class GameObject {
   constructor(x, y, width, height, type) {
@@ -16,7 +16,7 @@ export class GameObject {
   }
 
   /**
-   * Create DOM element for the game object
+   * Crée l'élément DOM pour l'objet du jeu
    */
   createDOMElement() {
     const element = document.createElement("div");
@@ -30,7 +30,7 @@ export class GameObject {
   }
 
   /**
-   * Update the position of the DOM element
+   * Met à jour la position de l'élément DOM
    */
   updatePosition() {
     if (this.element) {
@@ -40,13 +40,13 @@ export class GameObject {
   }
 
   /**
-   * Update the texture of the game object
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture de l'objet du jeu
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateTexture(imagePath) {
     if (!this.element) return;
     
-    // Find existing image element or create a new one
+    // Trouve l'élément image existant ou en crée un nouveau
     let imgElement = this.element.querySelector('img');
     if (!imgElement) {
       imgElement = document.createElement('img');
@@ -56,7 +56,7 @@ export class GameObject {
       this.element.appendChild(imgElement);
     }
     
-    // Update the image source
+    // Met à jour la source de l'image
     imgElement.src = imagePath;
   }
 }

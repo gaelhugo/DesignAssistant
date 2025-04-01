@@ -1,24 +1,24 @@
 /**
- * SimpleGame - A platform game class that separates game engine from design elements
+ * SimpleGame - Une classe de jeu de plateforme qui sépare le moteur de jeu des éléments de design
  */
-import { GameEngine } from './GameEngine.js';
-import { Player } from './elements/Player.js';
-import { Enemy } from './elements/Enemy.js';
-import { Platform } from './elements/Platform.js';
-import { Bonus } from './elements/Bonus.js';
-import { Background } from './elements/Background.js';
+import { GameEngine } from "./GameEngine.js";
+import { Player } from "./elements/Player.js";
+import { Enemy } from "./elements/Enemy.js";
+import { Platform } from "./elements/Platform.js";
+import { Bonus } from "./elements/Bonus.js";
+import { Background } from "./elements/Background.js";
 
 export class SimpleGame {
   constructor(gameContainerId) {
-    // Game engine
+    // Moteur de jeu
     this.engine = new GameEngine();
-    
-    // DOM elements
+
+    // Éléments DOM
     this.gameContainer = document.getElementById(gameContainerId);
     this.levelContainer = null;
     this.scoreElement = null;
-    
-    // Background manager
+
+    // Gestionnaire d'arrière-plan
     this.background = null;
   }
 
@@ -31,16 +31,16 @@ export class SimpleGame {
   }
 
   /**
-   * Initialize the game
+   * Initialise le jeu
    */
   initGame() {
-    console.log("Initializing game...");
+    console.log("Initialisation du jeu...");
 
-    // Set up game container
+    // Configure le conteneur du jeu
     this.gameContainer.style.overflow = "hidden";
     this.gameContainer.style.backgroundColor = "#87CEEB";
 
-    // Create level container
+    // Crée le conteneur de niveau
     this.levelContainer = document.createElement("div");
     this.levelContainer.style.position = "absolute";
     this.levelContainer.style.width = `${this.engine.LEVEL_WIDTH}px`;
@@ -49,7 +49,7 @@ export class SimpleGame {
     this.levelContainer.style.left = "0";
     this.gameContainer.appendChild(this.levelContainer);
 
-    // Create score display
+    // Crée l'affichage du score
     this.scoreElement = document.createElement("div");
     this.scoreElement.style.position = "absolute";
     this.scoreElement.style.top = "10px";
@@ -61,66 +61,71 @@ export class SimpleGame {
     this.scoreElement.textContent = "Score: 0";
     this.gameContainer.appendChild(this.scoreElement);
 
-    // Initialize event listeners
+    // Initialise les écouteurs d'événements
     this.engine.initEventListeners();
 
-    // Set up callbacks
+    // Configure les callbacks
     this.engine.setScoreUpdateCallback((score) => {
       this.scoreElement.textContent = `Score: ${score}`;
     });
-    
+
     this.engine.setGameOverCallback((score) => {
       this.showGameOverScreen(score);
     });
-    
+
     this.engine.setCameraUpdateCallback(() => {
       this.updateCamera();
     });
-    
+
     this.engine.setGenerateNewChunksCallback(() => {
       this.generateNewLevelChunks();
     });
 
-    // Create background
-    this.background = new Background(this.levelContainer, this.engine.LEVEL_WIDTH);
+    // Crée l'arrière-plan
+    this.background = new Background(
+      this.levelContainer,
+      this.engine.LEVEL_WIDTH
+    );
     this.background.createBackground();
 
-    // Create level
+    // Crée le niveau
     this.createLevel();
 
-    // Start game loop
+    // Démarre la boucle de jeu
     this.engine.lastTimestamp = performance.now();
-    this.engine.animationFrameId = requestAnimationFrame(this.engine.gameLoop.bind(this.engine));
+    this.engine.animationFrameId = requestAnimationFrame(
+      this.engine.gameLoop.bind(this.engine)
+    );
 
-    console.log("Game initialized successfully");
+    console.log("Jeu initialisé avec succès");
   }
 
   /**
-   * Create the initial level
+   * Crée le niveau initial
    */
   createLevel() {
-    // Create a continuous ground with occasional gaps
+    // Crée un sol continu avec des trous occasionnels
     for (let x = 0; x < this.engine.LEVEL_WIDTH; x += 100) {
-      // Create occasional gaps (15% chance) but not at the start
+      // Crée des trous occasionnels (15% de chance) mais pas au début
       if (Math.random() < 0.15 && x > 400) {
-        x += 100; // Skip this section to create a gap
+        x += 100; // Saute cette section pour créer un trou
         continue;
       }
       this.createGameObject(x, 550, 100, 16, "platform");
     }
 
-    // Create a simple, clear pattern of platforms
-    // Starting area - a safe platform to begin
+    // Crée un motif simple et clair de plateformes
+    // Zone de départ - une plateforme sûre pour commencer
     this.createGameObject(50, 500, 150, 16, "platform");
 
-    // First section - simple jumps with increasing height
+    // Première section - sauts simples avec hauteur croissante
     this.createGameObject(250, 500, 150, 16, "platform");
     const platform1 = this.createGameObject(450, 450, 150, 16, "platform");
     this.createGameObject(650, 450, 150, 16, "platform");
     const platform2 = this.createGameObject(850, 400, 150, 16, "platform");
     this.createGameObject(1050, 400, 150, 16, "platform");
 
-    // Second section - platforms at consistent heights
+    // Deuxième section - plateformes à hauteurs constantes
     this.createGameObject(1300, 450, 150, 16, "platform");
     const platform3 = this.createGameObject(1500, 450, 150, 16, "platform");
     this.createGameObject(1700, 400, 150, 16, "platform");
@@ -130,60 +135,60 @@ export class SimpleGame {
     this.createGameObject(2500, 400, 150, 16, "platform");
     const platform6 = this.createGameObject(2700, 400, 150, 16, "platform");
 
-    // Add just a few floating platforms for bonuses (not too many)
+    // Ajoute quelques plateformes flottantes pour les bonus (pas trop)
     this.createGameObject(600, 300, 100, 16, "platform");
     this.createGameObject(1200, 300, 100, 16, "platform");
     this.createGameObject(1800, 300, 100, 16, "platform");
     this.createGameObject(2400, 300, 100, 16, "platform");
 
-    // Place enemies strategically (not on every platform)
-    // First section - just a couple of enemies to get started
-    this.createGameObject(480, 418, 32, 32, "enemy"); // On platform at 450, 450
-    this.createGameObject(880, 368, 32, 32, "enemy"); // On platform at 850, 400
+    // Place des ennemis stratégiquement (pas sur chaque plateforme)
+    // Première section - juste quelques ennemis pour commencer
+    this.createGameObject(480, 418, 32, 32, "enemy"); // Sur la plateforme à 450, 450
+    this.createGameObject(880, 368, 32, 32, "enemy"); // Sur la plateforme à 850, 400
 
-    // Second section - more enemies but still manageable
-    this.createGameObject(1530, 418, 32, 32, "enemy"); // On platform at 1500, 450
-    this.createGameObject(1930, 368, 32, 32, "enemy"); // On platform at 1900, 400
-    this.createGameObject(2330, 418, 32, 32, "enemy"); // On platform at 2300, 450
-    this.createGameObject(2730, 368, 32, 32, "enemy"); // On platform at 2700, 400
+    // Deuxième section - plus d'ennemis mais toujours gérable
+    this.createGameObject(1530, 418, 32, 32, "enemy"); // Sur la plateforme à 1500, 450
+    this.createGameObject(1930, 368, 32, 32, "enemy"); // Sur la plateforme à 1900, 400
+    this.createGameObject(2330, 418, 32, 32, "enemy"); // Sur la plateforme à 2300, 450
+    this.createGameObject(2730, 368, 32, 32, "enemy"); // Sur la plateforme à 2700, 400
 
-    // Ground enemies - just a few, spaced out
+    // Ennemis au sol - juste quelques-uns, espacés
     this.createGameObject(350, 518, 32, 32, "enemy");
     this.createGameObject(1200, 518, 32, 32, "enemy");
     this.createGameObject(2000, 518, 32, 32, "enemy");
 
-    // Add bonuses in strategic locations
-    // On floating platforms
+    // Ajoute des bonus à des emplacements stratégiques
+    // Sur les plateformes flottantes
     this.createGameObject(650, 270, 24, 24, "bonus");
     this.createGameObject(1250, 270, 24, 24, "bonus");
     this.createGameObject(1850, 270, 24, 24, "bonus");
     this.createGameObject(2450, 270, 24, 24, "bonus");
 
-    // Above regular platforms
+    // Au-dessus des plateformes régulières
     this.createGameObject(300, 450, 24, 24, "bonus");
     this.createGameObject(750, 370, 24, 24, "bonus");
     this.createGameObject(1400, 400, 24, 24, "bonus");
     this.createGameObject(2200, 400, 24, 24, "bonus");
 
-    // Create player
+    // Crée le joueur
     this.engine.player = this.createGameObject(70, 468, 32, 32, "player");
   }
 
   /**
-   * Create a game object
-   * @param {number} x - X position
-   * @param {number} y - Y position
-   * @param {number} width - Width
-   * @param {number} height - Height
-   * @param {string} type - Type of game object
-   * @returns {Object} - Created game object
+   * Crée un objet de jeu
+   * @param {number} x - Position X
+   * @param {number} y - Position Y
+   * @param {number} width - Largeur
+   * @param {number} height - Hauteur
+   * @param {string} type - Type d'objet de jeu
+   * @returns {Object} - Objet de jeu créé
    */
   createGameObject(x, y, width, height, type) {
-    console.log(`Creating ${type} at (${x}, ${y})`);
+    console.log(`Création de ${type} à (${x}, ${y})`);
 
     let gameObject;
 
-    // Create the appropriate game object based on type
+    // Crée l'objet de jeu approprié en fonction du type
     switch (type) {
       case "player":
         gameObject = new Player(x, y, width, height);
@@ -198,17 +203,17 @@ export class SimpleGame {
         gameObject = new Bonus(x, y, width, height);
         break;
       default:
-        console.error(`Unknown game object type: ${type}`);
+        console.error(`Type d'objet de jeu inconnu : ${type}`);
         return null;
     }
 
-    // Create DOM element
+    // Crée l'élément DOM
     const element = gameObject.createDOMElement();
-    
-    // Add to level container
+
+    // Ajoute au conteneur de niveau
     this.levelContainer.appendChild(element);
 
-    // Add to appropriate collections in the engine
+    // Ajoute aux collections appropriées dans le moteur
     this.engine.gameObjects.push(gameObject);
 
     if (type === "platform") {
@@ -223,50 +228,50 @@ export class SimpleGame {
   }
 
   /**
-   * Update camera position to follow player
+   * Met à jour la position de la caméra pour suivre le joueur
    */
   updateCamera() {
     if (!this.engine.player) return;
 
-    // Calculate camera position (center player in view)
+    // Calcule la position de la caméra (centre le joueur dans la vue)
     const targetX = -this.engine.player.x + 400 - this.engine.player.width / 2;
 
-    // Limit camera to not show beyond the left edge of the level
+    // Limite la caméra pour ne pas montrer au-delà du bord gauche du niveau
     this.engine.cameraX = Math.min(0, targetX);
 
-    // Apply camera position to level container
+    // Applique la position de la caméra au conteneur de niveau
     this.levelContainer.style.transform = `translateX(${this.engine.cameraX}px)`;
 
-    // Update background parallax
+    // Met à jour le parallaxe d'arrière-plan
     this.background.updateCamera(this.engine.cameraX);
   }
 
   /**
-   * Generate new level chunks
+   * Génère de nouveaux segments de niveau
    */
   generateNewLevelChunks() {
-    // Check if player has reached the end of the current level
+    // Vérifie si le joueur a atteint la fin du niveau actuel
     if (
       this.engine.player.x + this.engine.player.width >
       this.engine.LEVEL_WIDTH - this.engine.CHUNK_SIZE
     ) {
-      // Generate new level chunk
+      // Génère un nouveau segment de niveau
       const newChunk = this.generateLevelChunk(
         this.engine.LEVEL_WIDTH,
         this.engine.LEVEL_HEIGHT
       );
-      
-      // Update level width
+
+      // Met à jour la largeur du niveau
       this.engine.LEVEL_WIDTH += this.engine.CHUNK_SIZE;
       this.levelContainer.style.width = `${this.engine.LEVEL_WIDTH}px`;
 
-      // Extend background
+      // Étend l'arrière-plan
       this.background.extendBackground(
         this.engine.LEVEL_WIDTH - this.engine.CHUNK_SIZE,
         this.engine.LEVEL_WIDTH
       );
 
-      // Add new platforms, enemies, and bonuses to the level
+      // Ajoute les nouvelles plateformes, ennemis et bonus au niveau
       for (const platform of newChunk.platforms) {
         this.engine.platforms.push(platform);
         this.engine.gameObjects.push(platform);
@@ -283,39 +288,39 @@ export class SimpleGame {
   }
 
   /**
-   * Generate a new level chunk
-   * @param {number} startX - Starting X position
-   * @param {number} height - Level height
-   * @returns {Object} - Generated chunk with platforms, enemies, and bonuses
+   * Génère un nouveau segment de niveau
+   * @param {number} startX - Position X de départ
+   * @param {number} height - Hauteur du niveau
+   * @returns {Object} - Segment généré avec plateformes, ennemis et bonus
    */
   generateLevelChunk(startX, height) {
     const platforms = [];
     const enemies = [];
     const bonuses = [];
 
-    // Create ground with gaps
+    // Crée un sol avec des trous
     for (let x = startX; x < startX + this.engine.CHUNK_SIZE; x += 64) {
-      // Create gaps in the ground for challenge (approximately 20% chance of gap)
+      // Crée des trous dans le sol pour le défi (environ 20% de chance de trou)
       if (Math.random() < 0.2) {
-        // Skip creating a platform here to create a gap
-        x += 64; // Make the gap at least 2 platforms wide
+        // Saute la création d'une plateforme ici pour créer un trou
+        x += 64; // Rend le trou d'au moins 2 plateformes de large
         continue;
       }
       platforms.push(this.createGameObject(x, 550, 64, 16, "platform"));
     }
 
-    // Create a path of platforms that can be traversed
-    // Start with platforms at different heights
+    // Crée un chemin de plateformes qui peut être traversé
+    // Commence avec des plateformes à différentes hauteurs
     const platformHeights = [450, 400, 350, 300, 250];
     let lastPlatformX = startX + 100;
 
     for (let i = 0; i < 8; i++) {
-      // Select a random height for this platform
+      // Sélectionne une hauteur aléatoire pour cette plateforme
       const height =
         platformHeights[Math.floor(Math.random() * platformHeights.length)];
 
-      // Create a platform
-      const platformWidth = Math.random() * 100 + 100; // Between 100 and 200
+      // Crée une plateforme
+      const platformWidth = Math.random() * 100 + 100; // Entre 100 et 200
       const platform = this.createGameObject(
         lastPlatformX,
         height,
@@ -325,8 +330,8 @@ export class SimpleGame {
       );
       platforms.push(platform);
 
-      // Add an enemy on some platforms (30% chance), but only if the platform is large enough
-      // Minimum width for an enemy platform is 80px (enemy width + some space to move)
+      // Ajoute un ennemi sur certaines plateformes (30% de chance), mais seulement si la plateforme est assez grande
+      // Largeur minimale pour une plateforme avec ennemi est de 80px (largeur de l'ennemi + espace pour se déplacer)
       if (Math.random() < 0.3 && platformWidth >= 80) {
         const enemy = this.createGameObject(
           lastPlatformX + platformWidth / 2 - 16,
@@ -338,7 +343,7 @@ export class SimpleGame {
         enemies.push(enemy);
       }
 
-      // Add a bonus above some platforms (40% chance)
+      // Ajoute un bonus au-dessus de certaines plateformes (40% de chance)
       if (Math.random() < 0.4) {
         const bonus = this.createGameObject(
           lastPlatformX + platformWidth / 2 - 12,
@@ -350,22 +355,22 @@ export class SimpleGame {
         bonuses.push(bonus);
       }
 
-      // Calculate the next platform position
-      // Ensure it's reachable with a jump (use MAX_JUMP_HEIGHT)
-      const jumpDistance = Math.random() * 150 + 50; // Between 50 and 200
+      // Calcule la position de la prochaine plateforme
+      // Assure qu'elle est atteignable avec un saut (utilise MAX_JUMP_HEIGHT)
+      const jumpDistance = Math.random() * 150 + 50; // Entre 50 et 200
       lastPlatformX += platformWidth + jumpDistance;
     }
 
-    // Add some floating platforms with bonuses
+    // Ajoute quelques plateformes flottantes avec des bonus
     for (let i = 0; i < 3; i++) {
       const x = startX + Math.random() * (this.engine.CHUNK_SIZE - 100);
-      const y = 150 + Math.random() * 100; // Higher platforms
+      const y = 150 + Math.random() * 100; // Plateformes plus hautes
       const width = 80;
 
       const platform = this.createGameObject(x, y, width, 16, "platform");
       platforms.push(platform);
 
-      // Add a bonus on each floating platform
+      // Ajoute un bonus sur chaque plateforme flottante
       const bonus = this.createGameObject(
         x + width / 2 - 12,
         y - 40,
@@ -376,18 +381,20 @@ export class SimpleGame {
       bonuses.push(bonus);
     }
 
-    // Add a few more enemies on the ground
+    // Ajoute quelques ennemis supplémentaires au sol
     for (let i = 0; i < 3; i++) {
-      // Find a suitable platform to place the enemy on
-      const availablePlatforms = platforms.filter((p) => p.y === 550 && p.width >= 80); // Ground platforms with enough width
+      // Trouve une plateforme appropriée pour placer l'ennemi
+      const availablePlatforms = platforms.filter(
+        (p) => p.y === 550 && p.width >= 80
+      ); // Plateformes au sol avec largeur suffisante
 
       if (availablePlatforms.length > 0) {
-        // Choose a random platform from available ones
+        // Choisit une plateforme aléatoire parmi celles disponibles
         const platform =
           availablePlatforms[
             Math.floor(Math.random() * availablePlatforms.length)
           ];
-        // Place enemy on top of the platform
+        // Place l'ennemi sur le dessus de la plateforme
         const x = platform.x + Math.random() * (platform.width - 32);
         const enemy = this.createGameObject(
           x,
@@ -404,51 +411,75 @@ export class SimpleGame {
   }
 
   /**
-   * Show game over screen
-   * @param {number} score - Final score
+   * Affiche l'écran de fin de partie
+   * @param {number} score - Score final
    */
   showGameOverScreen(score) {
-    // Create game over screen
-    const gameOverElement = document.createElement("div");
-    gameOverElement.style.position = "absolute";
-    gameOverElement.style.width = "100%";
-    gameOverElement.style.height = "100%";
-    gameOverElement.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-    gameOverElement.style.color = "white";
-    gameOverElement.style.display = "flex";
-    gameOverElement.style.flexDirection = "column";
-    gameOverElement.style.justifyContent = "center";
-    gameOverElement.style.alignItems = "center";
-    gameOverElement.style.fontSize = "24px";
-    gameOverElement.style.zIndex = "100";
+    // Crée l'élément de fond pour l'écran de fin de jeu
+    const gameOverBackground = document.createElement("div");
+    gameOverBackground.className = "game-over-background";
 
+    // Crée le panneau de fin de jeu
+    const gameOverElement = document.createElement("div");
+    gameOverElement.className = "game-over-panel";
+
+    // Contenu HTML avec des classes pour le style et styles inline pour le bouton
     gameOverElement.innerHTML = `
-      <h1>Game Over</h1>
-      <p>Your score: ${score}</p>
-      <button id="restart-button">Play Again</button>
+      <h2 class="game-over-title">Fin de partie</h2>
+      <div class="score-label">Votre score</div>
+      <span class="score-value">${score}</span>
+      <button id="restart-button" style="
+        background-color: #FF5722; 
+        color: white; 
+        border: none; 
+        padding: 12px 24px; 
+        margin-top: 20px; 
+        border-radius: 30px; 
+        font-size: 18px; 
+        font-weight: bold; 
+        cursor: pointer; 
+        text-transform: uppercase;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        min-width: 150px;
+      ">Rejouer</button>
     `;
 
+    // Ajoute les éléments au conteneur
+    this.gameContainer.appendChild(gameOverBackground);
     this.gameContainer.appendChild(gameOverElement);
 
-    // Add restart button functionality
+    // Ajoute la fonctionnalité du bouton de redémarrage
     document.getElementById("restart-button").addEventListener("click", () => {
-      this.restartGame();
-      this.gameContainer.removeChild(gameOverElement);
+      // Animation de sortie
+      gameOverBackground.style.animation =
+        "fadeIn 0.3s ease-in-out reverse forwards";
+      gameOverElement.style.animation = "scaleIn 0.3s ease-in reverse forwards";
+
+      // Supprime les éléments après l'animation
+      setTimeout(() => {
+        if (gameOverBackground.parentNode) {
+          this.gameContainer.removeChild(gameOverBackground);
+        }
+        if (gameOverElement.parentNode) {
+          this.gameContainer.removeChild(gameOverElement);
+        }
+        this.restartGame();
+      }, 300);
     });
   }
 
   /**
-   * Restart the game
+   * Redémarre le jeu
    */
   restartGame() {
-    // Clear all game objects
+    // Efface tous les objets du jeu
     for (const gameObject of this.engine.gameObjects) {
       if (gameObject.element && gameObject.element.parentNode) {
         gameObject.element.parentNode.removeChild(gameObject.element);
       }
     }
 
-    // Reset game state
+    // Réinitialise l'état du jeu
     this.engine.gameObjects = [];
     this.engine.player = null;
     this.engine.platforms = [];
@@ -459,38 +490,43 @@ export class SimpleGame {
     this.engine.cameraX = 0;
     this.engine.LEVEL_WIDTH = 3000;
 
-    // Update score display
+    // Met à jour l'affichage du score
     this.scoreElement.textContent = "Score: 0";
 
-    // Reset level container position
+    // Réinitialise la position du conteneur de niveau
     this.levelContainer.style.transform = "translateX(0)";
     this.levelContainer.style.width = `${this.engine.LEVEL_WIDTH}px`;
 
-    // Remove all children from level container
+    // Supprime tous les enfants du conteneur de niveau
     while (this.levelContainer.firstChild) {
       this.levelContainer.removeChild(this.levelContainer.firstChild);
     }
 
-    // Recreate background
-    this.background = new Background(this.levelContainer, this.engine.LEVEL_WIDTH);
+    // Recrée l'arrière-plan
+    this.background = new Background(
+      this.levelContainer,
+      this.engine.LEVEL_WIDTH
+    );
     this.background.createBackground();
 
-    // Create new level
+    // Crée un nouveau niveau
     this.createLevel();
 
-    // Cancel any existing animation frame
+    // Annule toute animation existante
     if (this.engine.animationFrameId) {
       cancelAnimationFrame(this.engine.animationFrameId);
     }
 
-    // Restart the game loop
+    // Redémarre la boucle de jeu
     this.engine.lastTimestamp = performance.now();
-    this.engine.animationFrameId = requestAnimationFrame(this.engine.gameLoop.bind(this.engine));
+    this.engine.animationFrameId = requestAnimationFrame(
+      this.engine.gameLoop.bind(this.engine)
+    );
   }
 
   /**
-   * Update the player texture
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture du joueur
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updatePlayerTexture(imagePath) {
     if (this.engine.player) {
@@ -499,38 +535,38 @@ export class SimpleGame {
   }
 
   /**
-   * Update the enemy texture
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture des ennemis
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateEnemyTexture(imagePath) {
-    this.engine.enemies.forEach(enemy => {
+    this.engine.enemies.forEach((enemy) => {
       enemy.updateTexture(imagePath);
     });
   }
 
   /**
-   * Update the platform texture
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture des plateformes
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updatePlatformTexture(imagePath) {
-    this.engine.platforms.forEach(platform => {
+    this.engine.platforms.forEach((platform) => {
       platform.updateTexture(imagePath);
     });
   }
 
   /**
-   * Update the bonus texture
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture des bonus
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateBonusTexture(imagePath) {
-    this.engine.bonuses.forEach(bonus => {
+    this.engine.bonuses.forEach((bonus) => {
       bonus.updateTexture(imagePath);
     });
   }
 
   /**
-   * Update the mountain texture in the background
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture des montagnes dans l'arrière-plan
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateMountainTexture(imagePath) {
     if (this.background) {
@@ -539,8 +575,8 @@ export class SimpleGame {
   }
 
   /**
-   * Update the hill texture in the background
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture des collines dans l'arrière-plan
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateHillTexture(imagePath) {
     if (this.background) {
@@ -549,8 +585,8 @@ export class SimpleGame {
   }
 
   /**
-   * Update the cloud texture in the background
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture des nuages dans l'arrière-plan
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateCloudTexture(imagePath) {
     if (this.background) {

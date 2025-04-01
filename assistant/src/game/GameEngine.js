@@ -1,9 +1,9 @@
 /**
- * GameEngine - Core game mechanics
+ * GameEngine - Mécaniques de base du jeu
  */
 export class GameEngine {
   constructor() {
-    // Constants
+    // Constantes
     this.LEVEL_WIDTH = 3000;
     this.LEVEL_HEIGHT = 600;
     this.CHUNK_SIZE = 1000;
@@ -13,7 +13,7 @@ export class GameEngine {
     this.JUMP_FORCE = 12;
     this.MAX_JUMP_HEIGHT = 150;
 
-    // Game state
+    // État du jeu
     this.gameObjects = [];
     this.player = null;
     this.platforms = [];
@@ -26,7 +26,7 @@ export class GameEngine {
     this.animationFrameId = null;
     this.keysPressed = {};
 
-    // Track furthest position reached by player
+    // Suivi de la position la plus éloignée atteinte par le joueur
     this.furthestX = 0;
     
     // Callbacks
@@ -37,7 +37,7 @@ export class GameEngine {
   }
 
   /**
-   * Initialize event listeners
+   * Initialise les écouteurs d'événements
    */
   initEventListeners() {
     document.addEventListener("keydown", (e) => {
@@ -50,58 +50,58 @@ export class GameEngine {
   }
 
   /**
-   * Main game loop
-   * @param {number} timestamp - Current timestamp
+   * Boucle principale du jeu
+   * @param {number} timestamp - Horodatage actuel
    */
   gameLoop(timestamp) {
     if (this.isGameOver) return;
 
-    // Handle player input
+    // Gère les entrées du joueur
     this.handleInput();
 
-    // Update game objects
+    // Met à jour les objets du jeu
     this.updateGameObjects();
 
-    // Check collisions
+    // Vérifie les collisions
     this.checkCollisions();
 
-    // Update camera position
+    // Met à jour la position de la caméra
     if (this.onCameraUpdate) {
       this.onCameraUpdate();
     }
 
-    // Generate new level chunks if needed
+    // Génère de nouveaux segments de niveau si nécessaire
     if (this.onGenerateNewChunks) {
       this.onGenerateNewChunks();
     }
 
-    // Continue the game loop
+    // Continue la boucle de jeu
     this.lastTimestamp = timestamp;
     this.animationFrameId = requestAnimationFrame(this.gameLoop.bind(this));
   }
 
   /**
-   * Handle player input
+   * Gère les entrées du joueur
    */
   handleInput() {
     if (!this.player) return;
 
-    // Move left
+    // Déplacement vers la gauche
     if (this.keysPressed["ArrowLeft"] || this.keysPressed["a"]) {
       this.player.velocityX = -this.MAX_SPEED;
       this.player.updateDirection(-1);
     }
-    // Move right
+    // Déplacement vers la droite
     else if (this.keysPressed["ArrowRight"] || this.keysPressed["d"]) {
       this.player.velocityX = this.MAX_SPEED;
       this.player.updateDirection(1);
     }
-    // No horizontal movement
+    // Pas de mouvement horizontal
     else {
       this.player.velocityX *= this.FRICTION;
     }
 
-    // Jump (only if on ground)
+    // Saut (seulement si au sol)
     if (
       (this.keysPressed["ArrowUp"] ||
         this.keysPressed["w"] ||
@@ -114,45 +114,45 @@ export class GameEngine {
   }
 
   /**
-   * Update all game objects
+   * Met à jour tous les objets du jeu
    */
   updateGameObjects() {
-    // Update player
+    // Met à jour le joueur
     if (this.player) {
-      // Apply gravity
+      // Applique la gravité
       this.player.velocityY += this.GRAVITY;
 
-      // Update position
+      // Met à jour la position
       this.player.x += this.player.velocityX;
       this.player.y += this.player.velocityY;
 
-      // Keep player within level bounds
+      // Maintient le joueur dans les limites du niveau
       if (this.player.x < 0) {
         this.player.x = 0;
         this.player.velocityX = 0;
       }
 
-      // Update furthest position reached
+      // Met à jour la position la plus éloignée atteinte
       if (this.player.x > this.furthestX) {
         this.furthestX = this.player.x;
       }
 
-      // Check if player has fallen off the level
+      // Vérifie si le joueur est tombé du niveau
       if (this.player.y > this.LEVEL_HEIGHT) {
         this.gameOver();
         return;
       }
 
-      // Update DOM element position
+      // Met à jour la position de l'élément DOM
       this.player.updatePosition();
     }
 
-    // Update enemies
+    // Met à jour les ennemis
     for (const enemy of this.enemies) {
-      // Simple AI: move back and forth
+      // IA simple: va-et-vient
       enemy.x += enemy.velocityX;
 
-      // Change direction if hitting edge of platform
+      // Change de direction si atteint le bord de la plateforme
       let onPlatform = false;
       for (const platform of this.platforms) {
         if (
@@ -162,7 +162,7 @@ export class GameEngine {
         ) {
           onPlatform = true;
 
-          // Check if enemy is at the edge of the platform
+          // Vérifie si l'ennemi est au bord de la plateforme
           if (
             enemy.x <= platform.x ||
             enemy.x + enemy.width >= platform.x + platform.width
@@ -174,22 +174,22 @@ export class GameEngine {
         }
       }
 
-      // If not on any platform, change direction
+      // Si pas sur une plateforme, change de direction
       if (!onPlatform) {
         enemy.velocityX *= -1;
         enemy.updateDirection(enemy.velocityX > 0 ? 1 : -1);
       }
 
-      // Set initial velocity if not set
+      // Définit la vitesse initiale si non définie
       if (enemy.velocityX === 0) {
         enemy.velocityX = 1 * enemy.direction;
       }
 
-      // Update DOM element position
+      // Met à jour la position de l'élément DOM
       enemy.updatePosition();
     }
 
-    // Update bonuses (simple floating animation)
+    // Met à jour les bonus (animation flottante simple)
     for (const bonus of this.bonuses) {
       bonus.y += Math.sin(Date.now() / 500) * 0.5;
       bonus.updatePosition();
@@ -197,19 +197,19 @@ export class GameEngine {
   }
 
   /**
-   * Check collisions between game objects
+   * Vérifie les collisions entre les objets du jeu
    */
   checkCollisions() {
     if (!this.player) return;
 
-    // Reset player ground state
+    // Réinitialise l'état au sol du joueur
     this.player.isOnGround = false;
 
-    // Check platform collisions
+    // Vérifie les collisions avec les plateformes
     for (const platform of this.platforms) {
-      // Check if player is colliding with platform
+      // Vérifie si le joueur est en collision avec la plateforme
       if (this.isColliding(this.player, platform)) {
-        // Coming from above (landing on platform)
+        // Venant d'en haut (atterrissage sur la plateforme)
         if (
           this.player.velocityY > 0 &&
           this.player.y + this.player.height - this.player.velocityY <=
@@ -219,7 +219,7 @@ export class GameEngine {
           this.player.velocityY = 0;
           this.player.isOnGround = true;
         }
-        // Coming from below (hitting platform from below)
+        // Venant d'en bas (heurtant la plateforme par dessous)
         else if (
           this.player.velocityY < 0 &&
           this.player.y - this.player.velocityY >= platform.y + platform.height
@@ -227,7 +227,7 @@ export class GameEngine {
           this.player.y = platform.y + platform.height;
           this.player.velocityY = 0;
         }
-        // Coming from the side (hitting platform from the side)
+        // Venant du côté (heurtant la plateforme par le côté)
         else {
           if (
             this.player.x + this.player.width / 2 <
@@ -242,48 +242,48 @@ export class GameEngine {
       }
     }
 
-    // Check enemy collisions
+    // Vérifie les collisions avec les ennemis
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const enemy = this.enemies[i];
 
-      // Check if player is colliding with enemy
+      // Vérifie si le joueur est en collision avec l'ennemi
       if (this.isColliding(this.player, enemy)) {
-        // Coming from above (jumping on enemy)
+        // Venant d'en haut (sautant sur l'ennemi)
         if (
           this.player.velocityY > 0 &&
           this.player.y + this.player.height - this.player.velocityY <= enemy.y
         ) {
-          // Remove enemy
+          // Supprime l'ennemi
           this.removeGameObject(enemy);
           this.enemies.splice(i, 1);
 
-          // Bounce player
+          // Fait rebondir le joueur
           this.player.velocityY = -this.JUMP_FORCE * 0.7;
 
-          // Add score
+          // Ajoute des points
           this.score += 100;
           if (this.onScoreUpdate) {
             this.onScoreUpdate(this.score);
           }
         } else {
-          // Player hit by enemy
+          // Joueur touché par l'ennemi
           this.gameOver();
           return;
         }
       }
     }
 
-    // Check bonus collisions
+    // Vérifie les collisions avec les bonus
     for (let i = this.bonuses.length - 1; i >= 0; i--) {
       const bonus = this.bonuses[i];
 
-      // Check if player is colliding with bonus
+      // Vérifie si le joueur est en collision avec le bonus
       if (this.isColliding(this.player, bonus)) {
-        // Remove bonus
+        // Supprime le bonus
         this.removeGameObject(bonus);
         this.bonuses.splice(i, 1);
 
-        // Add score
+        // Ajoute des points
         this.score += 50;
         if (this.onScoreUpdate) {
           this.onScoreUpdate(this.score);
@@ -293,10 +293,10 @@ export class GameEngine {
   }
 
   /**
-   * Check if two game objects are colliding
-   * @param {Object} a - First game object
-   * @param {Object} b - Second game object
-   * @returns {boolean} - True if colliding
+   * Vérifie si deux objets du jeu sont en collision
+   * @param {Object} a - Premier objet du jeu
+   * @param {Object} b - Second objet du jeu
+   * @returns {boolean} - Vrai si en collision
    */
   isColliding(a, b) {
     return (
@@ -308,16 +308,16 @@ export class GameEngine {
   }
 
   /**
-   * Remove a game object
-   * @param {Object} gameObject - Game object to remove
+   * Supprime un objet du jeu
+   * @param {Object} gameObject - Objet du jeu à supprimer
    */
   removeGameObject(gameObject) {
-    // Remove from DOM
+    // Supprime du DOM
     if (gameObject.element && gameObject.element.parentNode) {
       gameObject.element.parentNode.removeChild(gameObject.element);
     }
 
-    // Remove from game objects array
+    // Supprime du tableau des objets du jeu
     const index = this.gameObjects.indexOf(gameObject);
     if (index !== -1) {
       this.gameObjects.splice(index, 1);
@@ -325,39 +325,39 @@ export class GameEngine {
   }
 
   /**
-   * Set callback for score updates
-   * @param {Function} callback - Callback function
+   * Définit le callback pour les mises à jour de score
+   * @param {Function} callback - Fonction de callback
    */
   setScoreUpdateCallback(callback) {
     this.onScoreUpdate = callback;
   }
 
   /**
-   * Set callback for game over
-   * @param {Function} callback - Callback function
+   * Définit le callback pour la fin de partie
+   * @param {Function} callback - Fonction de callback
    */
   setGameOverCallback(callback) {
     this.onGameOver = callback;
   }
-
+  
   /**
-   * Set callback for camera updates
-   * @param {Function} callback - Callback function
+   * Définit le callback pour les mises à jour de caméra
+   * @param {Function} callback - Fonction de callback
    */
   setCameraUpdateCallback(callback) {
     this.onCameraUpdate = callback;
   }
   
   /**
-   * Set callback for generating new chunks
-   * @param {Function} callback - Callback function
+   * Définit le callback pour la génération de nouveaux segments
+   * @param {Function} callback - Fonction de callback
    */
   setGenerateNewChunksCallback(callback) {
     this.onGenerateNewChunks = callback;
   }
 
   /**
-   * Game over
+   * Fin de partie
    */
   gameOver() {
     this.isGameOver = true;

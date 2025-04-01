@@ -1,7 +1,7 @@
 import { GameObject } from './GameObject.js';
 
 /**
- * Platform class representing game platforms
+ * Classe Platform représentant les plateformes du jeu
  */
 export class Platform extends GameObject {
   constructor(x, y, width, height) {
@@ -10,13 +10,13 @@ export class Platform extends GameObject {
   }
 
   /**
-   * Create DOM element for the platform
+   * Crée l'élément DOM pour la plateforme
    */
   createDOMElement() {
     const element = super.createDOMElement();
     element.style.zIndex = '5';
     
-    // For platforms, we use background-image instead of an img element
+    // Pour les plateformes, nous utilisons background-image au lieu d'un élément img
     element.style.backgroundImage = `url(${this.defaultTexture})`;
     element.style.backgroundRepeat = 'repeat-x';
     element.style.backgroundSize = 'auto 100%';
@@ -25,13 +25,13 @@ export class Platform extends GameObject {
   }
 
   /**
-   * Update the texture of the platform
-   * @param {string} imagePath - Path to the new image
+   * Met à jour la texture de la plateforme
+   * @param {string} imagePath - Chemin vers la nouvelle image
    */
   updateTexture(imagePath) {
     if (!this.element) return;
     
-    // For platforms, update the background image
+    // Pour les plateformes, met à jour l'image de fond
     this.element.style.backgroundImage = `url(${imagePath})`;
   }
 }
