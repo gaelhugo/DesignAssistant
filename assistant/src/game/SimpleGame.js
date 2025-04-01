@@ -86,7 +86,7 @@ export class SimpleGame {
       this.levelContainer,
       this.engine.LEVEL_WIDTH
     );
-    this.background.createBackground();
+    this.background.init(this.engine.LEVEL_WIDTH, this.engine.LEVEL_HEIGHT);
 
     // Crée le niveau
     this.createLevel();
@@ -265,10 +265,14 @@ export class SimpleGame {
       this.engine.LEVEL_WIDTH += this.engine.CHUNK_SIZE;
       this.levelContainer.style.width = `${this.engine.LEVEL_WIDTH}px`;
 
-      // Étend l'arrière-plan
+      // Étend l'arrière-plan avec une marge supplémentaire pour éviter les apparitions soudaines
+      // Calcule une marge basée sur la largeur de l'écran
+      const screenWidth = this.gameContainer.offsetWidth || 800;
+      const extraMargin = screenWidth * 1.5; // Marge supplémentaire pour éviter les apparitions soudaines
+      
       this.background.extendBackground(
         this.engine.LEVEL_WIDTH - this.engine.CHUNK_SIZE,
-        this.engine.LEVEL_WIDTH
+        this.engine.LEVEL_WIDTH + extraMargin // Étend au-delà de la limite visible
       );
 
       // Ajoute les nouvelles plateformes, ennemis et bonus au niveau
@@ -507,7 +511,7 @@ export class SimpleGame {
       this.levelContainer,
       this.engine.LEVEL_WIDTH
     );
-    this.background.createBackground();
+    this.background.init(this.engine.LEVEL_WIDTH, this.engine.LEVEL_HEIGHT);
 
     // Crée un nouveau niveau
     this.createLevel();
