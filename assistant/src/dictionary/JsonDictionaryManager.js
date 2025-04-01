@@ -146,6 +146,8 @@ RÈGLES IMPORTANTES:
 
 ${examples}`;
 
+    console.log(prompt);
+
     return prompt;
   }
 
