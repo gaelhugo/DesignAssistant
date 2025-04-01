@@ -3,6 +3,7 @@
  * Permet de basculer entre le mode normal et le mode minimisé.
  */
 import { CanvasManager } from "../canvas/CanvasManager.js";
+import { SimpleGame } from "../game/SimpleGame.js";
 
 export class MinifyManager {
   /**
@@ -17,6 +18,7 @@ export class MinifyManager {
     this.expandButton = null;
     this.minifiedChat = null;
     this.canvasManager = new CanvasManager();
+    this.game = new SimpleGame("game-container");
   }
 
   /**
@@ -183,7 +185,10 @@ export class MinifyManager {
 
     // Afficher le canvas plein écran (sauf si le terminal est visible)
     // if (!isTerminalVisible) {
-    this.canvasManager.show();
+    // this.canvasManager.show();
+    this.game.initGame();
+    this.game.show();
+
     // }
 
     // Afficher le chat minimisé
@@ -213,6 +218,7 @@ export class MinifyManager {
 
     // Cacher le canvas plein écran
     this.canvasManager.hide();
+    this.game.hide();
 
     // Cacher le chat minimisé
     if (this.minifiedChat) {

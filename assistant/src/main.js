@@ -5,6 +5,7 @@
 import "./styles/style.css";
 import "./styles/dragDrop.css";
 import "./styles/mediaInput.css";
+import "./styles/game.css";
 import { ChatInterface } from "./ui/ChatInterface.js";
 import { FunctionCallHandler } from "./functions/FunctionCallHandler.js";
 import { FunctionRegistry } from "./functions/FunctionRegistry.js";
