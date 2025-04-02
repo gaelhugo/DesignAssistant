@@ -3,7 +3,8 @@
  * Permet de basculer entre le mode normal et le mode minimisé.
  */
 import { CanvasManager } from "../canvas/CanvasManager.js";
-import { SimpleGame } from "../game/SimpleGame.js";
+// import { SimpleGame } from "../game/SimpleGame.js";
+import App from "../components/App.js";
 
 export class MinifyManager {
   /**
@@ -18,7 +19,24 @@ export class MinifyManager {
     this.expandButton = null;
     this.minifiedChat = null;
     this.canvasManager = new CanvasManager();
-    this.game = new SimpleGame("game-container");
+    // this.game = new SimpleGame("game-container");
+    this.app = new App(document.getElementById("grid-content"));
+    /** 
+    // Exemples de séquences
+      const indexSequence = [0, 7, 12, 17, 22, 30]; // Lecture des vidéos par index
+      const nameSequence = ["1", "2", "3", "4", "5", "6"]; // Lecture des vidéos par nom
+
+      // Ajoute des contrôles clavier
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          // Lecture de la séquence par index
+          app.playSequence(indexSequence);
+        } else if (event.key === "Space" || event.key === " ") {
+          // Lecture de la séquence par nom
+          app.playSequenceByName(nameSequence);
+        }
+      });
+    */
   }
 
   /**
@@ -165,7 +183,7 @@ export class MinifyManager {
   /**
    * Minimise le chat et affiche le canvas plein écran.
    */
-  minimize() {
+  async minimize() {
     // Cacher la sidebar
     const sidebar = document.querySelector(".sidebar");
     if (sidebar) {
@@ -186,8 +204,11 @@ export class MinifyManager {
     // Afficher le canvas plein écran (sauf si le terminal est visible)
     // if (!isTerminalVisible) {
     // this.canvasManager.show();
-    this.game.initGame();
-    this.game.show();
+    // this.game.initGame();
+    // this.game.show();
+
+    this.app.show();
+    await this.app.initialize();
 
     // }
 
@@ -218,7 +239,8 @@ export class MinifyManager {
 
     // Cacher le canvas plein écran
     this.canvasManager.hide();
-    this.game.hide();
+    // this.game.hide();
+    this.app.hide();
 
     // Cacher le chat minimisé
     if (this.minifiedChat) {

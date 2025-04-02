@@ -36,8 +36,8 @@
 /* Chat minimisé */
 .minified-chat {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  bottom: 20px;
+  left: 20px;
   width: 300px;
   background-color: var(--color-background);
   border-radius: 12px;
