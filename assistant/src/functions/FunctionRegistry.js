@@ -16,7 +16,7 @@ export class FunctionRegistry {
     this.terminal = null;
     this.minifyManager = minifyManager;
     this.canvasFunctions = minifyManager.canvasManager.canvasFunctions;
-    this.gridApp = minifyManager.app;
+    // this.gridApp = minifyManager.app;
 
     // Définition des fonctions disponibles
     this.availableFunctions = {
@@ -32,9 +32,8 @@ export class FunctionRegistry {
           };
 
           // convert all number of args.mots to string
-          args.mots = args.mots.map((word) => word.toString());
-
-          this.gridApp.playSequenceByName(args.mots);
+          // args.mots = args.mots.map((word) => word.toString());
+          // this.gridApp.playSequenceByName(args.mots);
 
           // Afficher le résultat dans le terminal
           this.terminal.showInTerminal("reponse_dictionnaire", args, result);

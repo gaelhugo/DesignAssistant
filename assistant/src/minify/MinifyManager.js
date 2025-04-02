@@ -20,7 +20,7 @@ export class MinifyManager {
     this.minifiedChat = null;
     this.canvasManager = new CanvasManager();
     // this.game = new SimpleGame("game-container");
-    this.app = new App(document.getElementById("grid-content"));
+    // this.app = new App(document.getElementById("grid-content"));
     /** 
     // Exemples de séquences
       const indexSequence = [0, 7, 12, 17, 22, 30]; // Lecture des vidéos par index
@@ -203,12 +203,12 @@ export class MinifyManager {
 
     // Afficher le canvas plein écran (sauf si le terminal est visible)
     // if (!isTerminalVisible) {
-    // this.canvasManager.show();
+    this.canvasManager.show();
     // this.game.initGame();
     // this.game.show();
 
-    this.app.show();
-    await this.app.initialize();
+    // this.app.show();
+    // await this.app.initialize();
 
     // }
 
@@ -240,7 +240,7 @@ export class MinifyManager {
     // Cacher le canvas plein écran
     this.canvasManager.hide();
     // this.game.hide();
-    this.app.hide();
+    // this.app.hide();
 
     // Cacher le chat minimisé
     if (this.minifiedChat) {
