@@ -8,15 +8,15 @@ export class Background {
     this.farBackground = null;
     this.midBackground = null;
     this.nearBackground = null;
-    
+
     // Textures par défaut
-    this.mountainTexture = '/src/assets/images/mountains.png';
-    this.hillTexture = '/src/assets/images/buisson.png';
-    this.cloudTexture = '/src/assets/images/nuage.png';
-    
+    this.mountainTexture = "/src/assets/images/mountains.png";
+    this.hillTexture = "/src/assets/images/buisson.png";
+    this.cloudTexture = "/src/assets/images/nuage.png";
+
     // Propriétés des montagnes
-    this.mountainHeight = 250; // Hauteur en pixels
-    this.mountainSpacing = 375; // Espacement proportionnel à la hauteur (1.5x la hauteur)
+    this.mountainHeight = Math.random() * (700 - 250) + 250; // Hauteur en pixels
+    this.mountainSpacing = Math.random() * (700 - 375) + 375; // Espacement proportionnel à la hauteur (1.5x la hauteur)
   }
 
   /**
@@ -59,6 +59,10 @@ export class Background {
     this.levelContainer.appendChild(this.nearBackground);
   }
 
+  updateHeight() {
+    this.mountainHeight = Math.random() * (700 - 250) + 250;
+  }
+
   /**
    * Peuple l'arrière-plan avec des éléments
    * @param {number} startX - Position X de départ
@@ -66,7 +70,7 @@ export class Background {
    */
   populateBackground(startX, endX) {
     const width = endX - startX;
-    
+
     // Ajoute des montagnes à l'arrière-plan lointain avec un espacement proportionnel à leur taille
     // Calcule le point de départ pour assurer la continuité
     let mountainStartX = startX;
@@ -79,7 +83,7 @@ export class Background {
         mountainStartX += this.mountainSpacing;
       }
     }
-    
+
     // Ajoute des montagnes jusqu'à la fin du segment
     for (let x = mountainStartX; x < endX; x += this.mountainSpacing) {
       this.createMountain(x);
@@ -98,7 +102,7 @@ export class Background {
         hillStartX += hillSpacing;
       }
     }
-    
+
     // Ajoute des collines jusqu'à la fin du segment
     for (let x = hillStartX; x < endX; x += hillSpacing) {
       this.createHill(x);
@@ -118,9 +122,14 @@ export class Background {
         cloudStartX += cloudBaseSpacing + Math.random() * 50 - 25; // Variation de ±25
       }
     }
-    
+
     // Ajoute des nuages jusqu'à la fin du segment avec un espacement variable
-    for (let x = cloudStartX; x < endX; x += cloudBaseSpacing + Math.random() * 100 - 50) { // Variation de ±50
+    for (
+      let x = cloudStartX;
+      x < endX;
+      x += cloudBaseSpacing + Math.random() * 100 - 50
+    ) {
+      // Variation de ±50
       this.createCloud(x);
     }
   }
@@ -137,7 +146,7 @@ export class Background {
     mountain.style.bottom = "0";
     mountain.style.left = `${x}px`;
     mountain.style.opacity = "0.8";
-    
+
     this.farBackground.appendChild(mountain);
     return mountain;
   }
@@ -185,10 +194,10 @@ export class Background {
     // Ajoute un chevauchement pour assurer une transition fluide
     const overlap = 100;
     const effectiveStartX = Math.max(0, startX - overlap);
-    
+
     this.populateBackground(effectiveStartX, endX);
     this.levelWidth = endX;
-    
+
     // Met à jour les largeurs des arrière-plans
     this.farBackground.style.width = `${this.levelWidth}px`;
     this.midBackground.style.width = `${this.levelWidth}px`;
@@ -203,14 +212,20 @@ export class Background {
     // Applique l'effet parallaxe aux couches d'arrière-plan
     if (this.farBackground && this.midBackground && this.nearBackground) {
       // Facteurs de parallaxe pour chaque couche
-      const farFactor = 0.2;
-      const midFactor = 0.5;
-      const nearFactor = 0.8;
-      
+      const farFactor = 0.1;
+      const midFactor = 0.15;
+      const nearFactor = 0.05;
+
       // Applique la transformation avec les facteurs de parallaxe
-      this.farBackground.style.transform = `translateX(${cameraX * farFactor}px)`;
-      this.midBackground.style.transform = `translateX(${cameraX * midFactor}px)`;
-      this.nearBackground.style.transform = `translateX(${cameraX * nearFactor}px)`;
+      this.farBackground.style.transform = `translateX(${
+        cameraX * farFactor
+      }px)`;
+      this.midBackground.style.transform = `translateX(${
+        cameraX * midFactor
+      }px)`;
+      this.nearBackground.style.transform = `translateX(${
+        cameraX * nearFactor
+      }px)`;
     }
   }
 
@@ -220,8 +235,8 @@ export class Background {
    */
   updateMountainTexture(imagePath) {
     this.mountainTexture = imagePath;
-    const mountains = this.farBackground.querySelectorAll('img');
-    mountains.forEach(mountain => {
+    const mountains = this.farBackground.querySelectorAll("img");
+    mountains.forEach((mountain) => {
       mountain.src = imagePath;
     });
   }
@@ -232,8 +247,8 @@ export class Background {
    */
   updateHillTexture(imagePath) {
     this.hillTexture = imagePath;
-    const hills = this.midBackground.querySelectorAll('img');
-    hills.forEach(hill => {
+    const hills = this.midBackground.querySelectorAll("img");
+    hills.forEach((hill) => {
       hill.src = imagePath;
     });
   }
@@ -244,8 +259,8 @@ export class Background {
    */
   updateCloudTexture(imagePath) {
     this.cloudTexture = imagePath;
-    const clouds = this.nearBackground.querySelectorAll('img');
-    clouds.forEach(cloud => {
+    const clouds = this.nearBackground.querySelectorAll("img");
+    clouds.forEach((cloud) => {
       cloud.src = imagePath;
     });
   }
@@ -265,7 +280,7 @@ export class Background {
     // Calcule une marge supplémentaire basée sur la largeur de l'écran
     const screenWidth = window.innerWidth || 800;
     const extraMargin = screenWidth * 1.5;
-    
+
     // Peuple l'arrière-plan initial avec une marge supplémentaire
     this.populateBackground(0, this.levelWidth + extraMargin);
   }

@@ -7,6 +7,7 @@ import { Enemy } from "./elements/Enemy.js";
 import { Platform } from "./elements/Platform.js";
 import { Bonus } from "./elements/Bonus.js";
 import { Background } from "./elements/Background.js";
+import IconManager from "../canvas/IconManager.js";
 
 export class SimpleGame {
   constructor(gameContainerId) {
@@ -20,6 +21,24 @@ export class SimpleGame {
 
     // Gestionnaire d'arrière-plan
     this.background = null;
+
+    this.initIconManager();
+    // this.startTextures();
+    // this.textInputZone = document.querySelector(".minified-input-container");
+
+    // this.textInputZone.addEventListener("click", () => {
+    //   if (!this.isWriting) {
+    //     this.engine.canMove = false;
+    //     this.isWriting = true;
+    //   }
+    // });
+  }
+
+  async initIconManager() {
+    this.iconManager = new IconManager();
+    await this.iconManager.loadSpreadsheetIcons();
+    console.log("IconManager initialisé avec succès");
+    console.log(this.iconManager.listDict());
   }
 
   show() {
@@ -51,12 +70,10 @@ export class SimpleGame {
 
     // Crée l'affichage du score
     this.scoreElement = document.createElement("div");
+    this.scoreElement.classList.add("score");
     this.scoreElement.style.position = "absolute";
-    this.scoreElement.style.top = "10px";
-    this.scoreElement.style.left = "10px";
     this.scoreElement.style.fontSize = "24px";
     this.scoreElement.style.fontWeight = "bold";
-    this.scoreElement.style.color = "white";
     this.scoreElement.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.5)";
     this.scoreElement.textContent = "Score: 0";
     this.gameContainer.appendChild(this.scoreElement);
@@ -98,6 +115,11 @@ export class SimpleGame {
     );
 
     console.log("Jeu initialisé avec succès");
+
+    // this.updateEnemyTexture("/images/spreadsheet1.json");
+    this.backgroundObject = document.getElementById("game-container");
+
+    this.isWriting = false;
   }
 
   /**
@@ -269,7 +291,7 @@ export class SimpleGame {
       // Calcule une marge basée sur la largeur de l'écran
       const screenWidth = this.gameContainer.offsetWidth || 800;
       const extraMargin = screenWidth * 1.5; // Marge supplémentaire pour éviter les apparitions soudaines
-      
+
       this.background.extendBackground(
         this.engine.LEVEL_WIDTH - this.engine.CHUNK_SIZE,
         this.engine.LEVEL_WIDTH + extraMargin // Étend au-delà de la limite visible
@@ -554,6 +576,7 @@ export class SimpleGame {
    */
   updatePlatformTexture(imagePath) {
     this.engine.platforms.forEach((platform) => {
+      console.log("updatePlatformTexture", imagePath);
       platform.updateTexture(imagePath);
     });
   }
@@ -596,5 +619,45 @@ export class SimpleGame {
     if (this.background) {
       this.background.updateCloudTexture(imagePath);
     }
+  }
+
+  lmstudioMessage(motclefs) {
+    console.log("motclefs", motclefs);
+
+    const cloudTex = this.iconManager.getIconDataUrl(motclefs[0]);
+    if (cloudTex) this.updateCloudTexture(cloudTex);
+
+    const bgTex = this.iconManager.getIconDataUrl(motclefs[1]);
+    if (bgTex) this.updateMountainTexture(bgTex);
+
+    const enemyTex = this.iconManager.getIconDataUrl(motclefs[2]);
+    if (enemyTex) this.updateEnemyTexture(enemyTex);
+
+    const bonusTex = this.iconManager.getIconDataUrl(motclefs[3]);
+    if (bonusTex) this.updateBonusTexture(bonusTex);
+
+    const plateformTex = this.iconManager.getIconDataUrl(motclefs[4]);
+    if (plateformTex) this.updatePlatformTexture(plateformTex);
+
+    const hillTex = this.iconManager.getIconDataUrl(motclefs[5]);
+    if (hillTex) this.updateHillTexture(hillTex);
+
+    const bgColor = motclefs[6];
+    this.backgroundObject.style.backgroundColor = bgColor;
+  }
+
+  startTextures() {
+    // const plateformTex = this.iconManager.getIconDataUrl("Dirt");
+    // this.updatePlatformTexture(plateformTex);
+    // const cloudTex = this.iconManager.getIconDataUrl("Clouds");
+    // this.updateCloudTexture(cloudTex);
+    // const bgTex = this.iconManager.getIconDataUrl("Mountain");
+    // this.updateMountainTexture(bgTex);
+    // const bonusTex = this.iconManager.getIconDataUrl("Dove");
+    // this.updateBonusTexture(bonusTex);
+    // const hillTex = this.iconManager.getIconDataUrl("Pine");
+    // this.updateHillTexture(hillTex);
+    // const enemyTex = this.iconManager.getIconDataUrl("Zombie");
+    // this.updateEnemyTexture(enemyTex);
   }
 }

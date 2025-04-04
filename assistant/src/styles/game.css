@@ -1,6 +1,8 @@
+
+
 :root {
   font-family: 'Press Start 2P', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
-    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, "Baloo-Medium";
   line-height: 1.5;
   font-weight: 400;
 
@@ -12,7 +14,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --mainColor: #4A7A71;
 }
+
+
 
 /* body {
   margin: 0;
@@ -29,6 +35,79 @@
   padding: 2rem;
   text-align: center;
 } */
+ .anglesContainer {
+  position: absolute;
+  top: 0;
+   width: 100%;
+   height: 100%;
+   border-left: 20px solid var(--mainColor);
+  border-right: 20px solid var(--mainColor);
+  border-bottom: 20px solid var(--mainColor);
+  border-top: 130px solid var(--mainColor);
+   box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   -webkit-box-sizing: border-box;
+   pointer-events: none;
+   user-select: none;
+   z-index: 2;
+ }
+
+.topLeft {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  z-index: 20;
+}
+
+.topRight {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  transform: rotateZ(180deg);
+  z-index: 20;
+}
+
+.bottomLeft {
+  position: absolute;
+  bottom: -6px;
+  left: -6px;
+  transform: rotateZ(0deg);
+  z-index: 20;
+}
+
+.bottomRight {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  transform: rotateZ(180deg);
+  z-index: 20;
+}
+
+.angle{
+  fill: var(--mainColor);
+  width: 36px;
+  height: 36px;
+}
+
+.score{
+  top: 30px;
+  left: 40px;
+  color: #FEEECD;
+}
+
+.gameTitle{
+  position: absolute;
+  top: 40px;
+  left: 20px;
+  z-index: 3;
+  color: #FEEECD;
+  font-size: 60pt;
+  font-family: "Baloo 2", sans-serif;
+}
+
+.overlay{
+  display: block;
+}
 
 
 #game-container {
@@ -45,6 +124,8 @@
   position:absolute;
   top:0px;
   left:0px;
+  transform: scale(1.3);
+  transform-origin: bottom left;
   
 }
 
@@ -72,14 +153,14 @@
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
-  font-family: inherit;
+  font-family: Baloo;
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 
 #game-container button:hover {
-  border-color: #646cff;
+  border-color: #c4c7fc;
 }
 
 #game-container button:focus,
@@ -88,34 +169,45 @@
 }
 
 /* Surcharge pour le bouton de redémarrage */
-#game-container .restart-button,
 .restart-button {
-  background-color: #FF5722 !important;
-  color: white !important;
-  border: none !important;
-  padding: 12px 24px !important;
-  margin-top: 20px !important;
-  border-radius: 30px !important;
-  font-size: 18px !important;
-  font-weight: bold !important;
-  cursor: pointer !important;
+  font-family: "Baloo 2", sans-serif;
+  background-color: #FEEECD ;
+  color: var(--mainColor) ;
+  border: none ;
+  padding: 12px 24px ;
+  margin-top: 20px ;
+  border-radius: 30px ;
+  font-size: 18px ;
+  font-weight: bold ;
+  cursor: pointer;
+  transition: all 0.3s ease ;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  animation: pulse 2s infinite ;
+  text-transform: uppercase ;
+  letter-spacing: 1px ;
+  display: inline-block ;
+  width: auto ;
+  min-width: 150px ;
+}
+
+#restart-button{
+  font-family: "Baloo 2", sans-serif !important;
+  background-color: #FEEECD !important;
+  color: var(--mainColor) !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
-  animation: pulse 2s infinite !important;
-  text-transform: uppercase !important;
-  letter-spacing: 1px !important;
-  display: inline-block !important;
-  width: auto !important;
-  min-width: 150px !important;
+}
+
+#restart-button:hover {
+  min-width: 170px;
 }
 
 .restart-button:hover,
 #game-container .restart-button:hover {
-  background-color: #E64A19 !important;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;
-  transform: translateY(-2px) !important;
-  color: white !important;
-  border-color: transparent !important;
+  background-color: #FEEECD ;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) ;
+  transform: translateY(-2px) ;
+  color: white ;
+  border-color: transparent ;
 }
 
 @media (prefers-color-scheme: light) {
@@ -159,40 +251,40 @@
 
 .game-over-panel {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
+  top: calc(50% * 1.3);
+  left: calc(50% / 1.3);
+
+
   width: 300px;
-  background-color: #2a2a2a;
-  color: white;
+  background-color: var(--mainColor);
+  color: #FEEECD;
   padding: 30px;
   border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 255, 255, 0.1) inset;
-  font-family: Arial, sans-serif;
+  font-family: "Baloo 2",sans-serif;
   text-align: center;
   z-index: 200;
   animation: scaleIn 0.4s ease-out 0.3s forwards;
   opacity: 0;
-  border: 2px solid #444;
 }
 
 .game-over-title {
+  font-family: "Baloo 2", sans-serif;
   font-size: 32px;
   margin-bottom: 20px;
-  color: #FF5252;
+  color: #FEEECD;
   text-shadow: 0 0 10px rgba(255, 82, 82, 0.3);
 }
 
 .score-label {
   font-size: 18px;
-  color: #BBB;
+  color: #FEEECD;
   margin-bottom: 5px;
 }
 
 .score-value {
   font-size: 42px;
   font-weight: bold;
-  color: #FFD700;
+  color: #FEEECD;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
   margin: 10px 0;
   display: block;
