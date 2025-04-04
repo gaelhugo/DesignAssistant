@@ -136,13 +136,14 @@ RÈGLES IMPORTANTES:
 1. Tu ne peux utiliser QUE les mots de ce dictionnaire dans tes réponses, sans AUCUNE exception.
 2. Tu peux utiliser les mots plusieurs fois si nécessaire.
 3. Tu dois choisir les mots qui répondent le plus précisément à la question.
-4. Réponds avec UNIQUEMENT l'objet JSON brut, sans aucun autre texte avant ou après.
-5. Les mots dans le tableau doivent être dans un ordre logique pour former une réponse cohérente.
-6. NE PAS mettre le JSON dans des blocs de code avec des backticks (\`\`\`).
-7. NE PAS ajouter de formatage markdown.
-8. Renvoie UNIQUEMENT le JSON pur.
-9. Choisis la fonction la plus appropriée pour répondre à la demande de l'utilisateur.
-10. Si une image est fournie, analyse-la et choisis la fonction la plus appropriée pour répondre à la demande de l'utilisateur.
+4. Tu dois choisir 6 mots du dictionnaire pour former une réponse.
+5. Réponds avec UNIQUEMENT l'objet JSON brut, sans aucun autre texte avant ou après.
+6. Les mots dans le tableau doivent être dans un ordre logique pour former une réponse cohérente.
+7. NE PAS mettre le JSON dans des blocs de code avec des backticks (\`\`\`).
+8. NE PAS ajouter de formatage markdown.
+9. Renvoie UNIQUEMENT le JSON pur.
+10. Choisis la fonction la plus appropriée pour répondre à la demande de l'utilisateur.
+11. Si une image est fournie, analyse-la et choisis la fonction la plus appropriée pour répondre à la demande de l'utilisateur.
 
 ${examples}`;
 

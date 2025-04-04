@@ -19,6 +19,9 @@ export class MinifyManager {
     this.minifiedChat = null;
     this.canvasManager = new CanvasManager();
     this.game = new SimpleGame("game-container");
+    //this.minimize();
+    this.initialize();
+    this.minimize();
   }
 
   /**
@@ -165,6 +168,7 @@ export class MinifyManager {
   /**
    * Minimise le chat et affiche le canvas plein écran.
    */
+
   minimize() {
     // Cacher la sidebar
     const sidebar = document.querySelector(".sidebar");

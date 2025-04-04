@@ -15,161 +15,69 @@ export class FunctionRegistry {
     this.functionHandler = functionHandler;
     this.terminal = null;
     this.minifyManager = minifyManager;
-    this.canvasFunctions = minifyManager.canvasManager.canvasFunctions;
+    // this.canvasFunctions = minifyManager.canvasManager.canvasFunctions;
+    this.gameFunctions = minifyManager.game;
 
     // Définition des fonctions disponibles
     this.availableFunctions = {
       reponse_dictionnaire: {
         handler: (args) => {
-          // Cette fonction permet de traiter une réponse en utilisant
-          // strictement les mots du dictionnaire
+          // Extraire les 6 types de mots des paramètres
+          const mots = {
+            nuage: args.nuage || "Aucun mot pour nuage",
+            arrierePlan: args.arrierePlan || "Aucun mot pour arrière plan",
+            ennemi: args.ennemi || "Aucun mot pour ennemi",
+            bonus: args.bonus || "Aucun mot pour bonus",
+            sol: args.sol || "Aucun mot pour sol",
+            décor: args.décor || "Aucun mot pour décor",
+            couleur: args.couleur || "Aucune couleur spécifiée",
+          };
+
+          // Construire le résultat
           const result = {
             success: true,
-            message: `Réponse traitée avec ${
-              args.mots?.length || 0
-            } mots du dictionnaire`,
+            message: `Réponse traitée avec les mots suivants :\n- Nuage : ${mots.nuage}\n- Arrière Plan : ${mots.arrierePlan}\n- Ennemi : ${mots.ennemi}\n- Bonus : ${mots.bonus}\n- Sol : ${mots.sol}\n- Décor : ${mots.décor}`,
           };
 
-          // Afficher le résultat dans le terminal
-          this.terminal.showInTerminal("reponse_dictionnaire", args, result);
-          return result;
-        },
-        description:
-          "Traite une réponse en utilisant strictement les mots du dictionnaire",
-        parameters: {
-          mots: {
-            type: "array",
-            description:
-              "Liste des mots du dictionnaire à utiliser dans la réponse",
-            items: {
-              type: "string",
-            },
-          },
-        },
-      },
+          // Envoyer les mots au gestionnaire de jeu
+          this.gameFunctions.lmstudioMessage(Object.values(mots));
 
-      jouer_morceau: {
-        handler: (args) => {
-          // Cette fonction appelle le serveur Flask pour jouer un morceau dans iTunes
-          const result = {
-            pending: true,
-            message: "Chargement du morceau en cours...",
-          };
-          this.terminal.showInTerminal("jouer_morceau", args, result);
-
-          // Appel au serveur Flask
-          fetch(
-            "http://localhost:5000/api/play-track?track=" +
-              encodeURIComponent(args.track)
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              const finalResult = {
-                success: data.success,
-                message: data.message,
-              };
-              this.terminal.showInTerminal("jouer_morceau", args, finalResult);
-              return finalResult;
-            })
-            .catch((error) => {
-              const errorResult = {
-                success: false,
-                message: `Erreur lors du chargement du morceau: ${error.message}`,
-              };
-              this.terminal.showInTerminal("jouer_morceau", args, errorResult);
-              return errorResult;
-            });
+          // Afficher les mots et le résultat dans le terminal
+          this.terminal.showInTerminal("reponse_dictionnaire", mots, result);
 
           return result;
         },
         description:
-          "Joue un morceau dans l'application iTunes sur votre Mac. Actuellement uniquement disponible ces morceaux : 'Winter Sleep (Original Mix)' ou 'Party People' ou le nom de la track demandée expressément par l'utilisateur. Ne jamais retourner un json sans nom de morceau.",
+          "Traite une réponse en utilisant strictement les mots du dictionnaire. Renvoie 6 mots différents qui vont correspondre à six types de réponses, puis 1 couleur. Voici les 6 types de mots : -n1 : un mot qui peut correspondre à un nuage -n2 : un mot qui peut correspodre à un arrière plan, contient la notion de background -n3 : un mot qui peut correspondre à un ennemi ou monstre -n4 : un mot qui correspond à un bonus, contient le mot bonus  -n5 : un mot qui correspond à un sol, souvent contenant le mot ground -n6 : un mot qui correspond à une élément de décors. Et pour la couleure: une couleur en code hexadecimal qui correspond au lexique généré, sans aller dans des couleurs trop flashy.",
+
         parameters: {
-          track: {
+          nuage: {
             type: "string",
-            description: "Le nom du morceau à jouer. ",
+            description: "un nuage",
           },
-        },
-      },
-
-      dessiner_images: {
-        handler: (args) => {
-          this.terminal.showInTerminal(
-            "dessiner_images",
-            args,
-            "dessiner dans le canvas"
-          );
-          console.log("args.mots", args.mots);
-          this.minifyManager.minimize();
-          this.canvasFunctions.clear();
-          args.mots.forEach((mot) => {
-            this.canvasFunctions.addImage(mot + ".png");
-          });
-          return "Dessiné dans le canvas";
-        },
-        description:
-          "Traite une réponse en utilisant strictement les mots du dictionnaire.",
-        parameters: {
-          mots: {
-            type: "array",
-            description:
-              "Liste des mots du dictionnaire à utiliser dans la réponse.",
-            items: {
-              type: "string",
-            },
-          },
-        },
-      },
-
-      changer_theme: {
-        handler: (args) => {
-          // Cette fonction change le thème de l'application
-          // en fonction du paramètre theme.
-          const theme = args.theme || "theme-light";
-          const themes = [
-            "theme-light",
-            "dark-theme",
-            "blue-theme",
-            "green-theme",
-          ];
-
-          // Map des anciens noms de thèmes vers les nouveaux
-          const themeMap = {
-            light: "theme-light",
-            dark: "dark-theme",
-            blue: "blue-theme",
-            green: "green-theme",
-          };
-
-          // Convertir l'ancien nom de thème si nécessaire
-          const normalizedTheme = themeMap[theme] || theme;
-
-          // Vérifier si le thème est valide
-          if (!themes.includes(normalizedTheme)) {
-            return {
-              success: false,
-              message: `Thème non valide. Les thèmes disponibles sont: ${themes.join(
-                ", "
-              )}`,
-            };
-          }
-
-          // Utiliser la fonction globale de changement de thème
-          if (typeof window.changeTheme === "function") {
-            window.changeTheme(normalizedTheme);
-          }
-
-          return {
-            success: true,
-            message: `Thème changé pour: ${normalizedTheme}`,
-          };
-        },
-        description: "Change le thème de l'application",
-        parameters: {
-          theme: {
+          arrierePlan: {
             type: "string",
-            description:
-              "Le thème à appliquer. Valeurs possibles: theme-light, dark-theme, blue-theme, green-theme",
+            description: "un arrière plan, contient le mot background",
+          },
+          ennemi: {
+            type: "string",
+            description: "un ennemi ou monstre",
+          },
+          bonus: {
+            type: "string",
+            description: "un bonus à ramasser",
+          },
+          sol: {
+            type: "string",
+            description: "un sol",
+          },
+          décor: {
+            type: "string",
+            description: "un élément de décor",
+          },
+          couleur: {
+            type: "string",
+            description: "une couleur en RVB",
           },
         },
       },

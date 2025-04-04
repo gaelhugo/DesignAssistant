@@ -1,20 +1,20 @@
-import { GameObject } from './GameObject.js';
+import { GameObject } from "./GameObject.js";
 
 /**
  * Classe Enemy représentant les ennemis du jeu
  */
 export class Enemy extends GameObject {
   constructor(x, y, width, height) {
-    super(x, y, width, height, 'enemy');
-    this.defaultTexture = '/src/assets/images/enemy.png';
+    super(x, y, width, height, "enemy");
+    this.defaultTexture = "/src/assets/images/enemy.png";
   }
-
+  3;
   /**
    * Crée l'élément DOM pour l'ennemi
    */
   createDOMElement() {
     const element = super.createDOMElement();
-    element.style.zIndex = '8';
+    element.style.zIndex = "8";
     this.updateTexture(this.defaultTexture);
     return element;
   }
@@ -25,9 +25,10 @@ export class Enemy extends GameObject {
    */
   updateDirection(direction) {
     this.direction = direction;
-    const enemyImg = this.element.querySelector('img');
+    const enemyImg = this.element.querySelector("img");
     if (enemyImg) {
-      enemyImg.style.transform = this.direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+      enemyImg.style.transform =
+        this.direction === 1 ? "scaleX(1)" : "scaleX(-1)";
     }
   }
 }

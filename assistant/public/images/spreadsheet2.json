@@ -1,0 +1,16 @@
+[
+  { "box_2d": [0, 0, 250, 250], "label": "RockFire" },
+  { "box_2d": [0, 250, 250, 500], "label": "SmallRockFire" },
+  { "box_2d": [0, 500, 250, 750], "label": "RedCloud" },
+  { "box_2d": [0, 750, 250, 1000], "label": "HitCloud" },
+  { "box_2d": [250, 0, 500, 250], "label": "Fire" },
+  { "box_2d": [250, 250, 500, 500], "label": "Rock" },
+  { "box_2d": [250, 500, 500, 750], "label": "PinkCottonCandyCloud" },
+  { "box_2d": [250, 750, 500, 1000], "label": "YellowCottonCandyCloud" },
+  { "box_2d": [500, 0, 750, 250], "label": "LittleRockFire" },
+  { "box_2d": [500, 250, 750, 500], "label": "Rock2" },
+  { "box_2d": [500, 500, 750, 750], "label": "BlueCottonCandyCloud" },
+  { "box_2d": [500, 750, 750, 1000], "label": "PinkCottonCandyCloudOnStick" },
+  { "box_2d": [750, 0, 1000, 250], "label": "Explosion" },
+  { "box_2d": [750, 250, 1000, 500], "label": "DeadGrassStone" }
+]

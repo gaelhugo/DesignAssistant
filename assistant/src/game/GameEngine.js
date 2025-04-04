@@ -28,12 +28,14 @@ export class GameEngine {
 
     // Suivi de la position la plus éloignée atteinte par le joueur
     this.furthestX = 0;
-    
+
     // Callbacks
     this.onScoreUpdate = null;
     this.onGameOver = null;
     this.onCameraUpdate = null;
     this.onGenerateNewChunks = null;
+
+    this.canMove = true;
   }
 
   /**
@@ -84,32 +86,29 @@ export class GameEngine {
    * Gère les entrées du joueur
    */
   handleInput() {
-    if (!this.player) return;
+    if (this.canMove) {
+      if (!this.player) return;
 
-    // Déplacement vers la gauche
-    if (this.keysPressed["ArrowLeft"] || this.keysPressed["a"]) {
-      this.player.velocityX = -this.MAX_SPEED;
-      this.player.updateDirection(-1);
-    }
-    // Déplacement vers la droite
-    else if (this.keysPressed["ArrowRight"] || this.keysPressed["d"]) {
-      this.player.velocityX = this.MAX_SPEED;
-      this.player.updateDirection(1);
-    }
-    // Pas de mouvement horizontal
-    else {
-      this.player.velocityX *= this.FRICTION;
-    }
+      // Déplacement vers la gauche
+      if (this.keysPressed["ArrowLeft"]) {
+        this.player.velocityX = -this.MAX_SPEED;
+        this.player.updateDirection(-1);
+      }
+      // Déplacement vers la droite
+      else if (this.keysPressed["ArrowRight"]) {
+        this.player.velocityX = this.MAX_SPEED;
+        this.player.updateDirection(1);
+      }
+      // Pas de mouvement horizontal
+      else {
+        this.player.velocityX *= this.FRICTION;
+      }
 
-    // Saut (seulement si au sol)
-    if (
-      (this.keysPressed["ArrowUp"] ||
-        this.keysPressed["w"] ||
-        this.keysPressed[" "]) &&
-      this.player.isOnGround
-    ) {
-      this.player.velocityY = -this.JUMP_FORCE;
-      this.player.isOnGround = false;
+      // Saut (seulement si au sol)
+      if (this.keysPressed["ArrowUp"] && this.player.isOnGround) {
+        this.player.velocityY = -this.JUMP_FORCE;
+        this.player.isOnGround = false;
+      }
     }
   }
 
@@ -339,7 +338,7 @@ export class GameEngine {
   setGameOverCallback(callback) {
     this.onGameOver = callback;
   }
-  
+
   /**
    * Définit le callback pour les mises à jour de caméra
    * @param {Function} callback - Fonction de callback
@@ -347,7 +346,7 @@ export class GameEngine {
   setCameraUpdateCallback(callback) {
     this.onCameraUpdate = callback;
   }
-  
+
   /**
    * Définit le callback pour la génération de nouveaux segments
    * @param {Function} callback - Fonction de callback
